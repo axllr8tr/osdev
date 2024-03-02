@@ -3,9 +3,13 @@
 #include "video.h" // putc(...) impl
 #include "uprint.h"
 
-void uprint(char *string) {
+void uprintc(char *string, u8 color) {
   while (*string) {
-    putc(*string, default_color);
+    putc(*string, color);
     string++;
   }
+}
+
+void uprint(char *string) {
+  uprintc(string, default_color);
 }
