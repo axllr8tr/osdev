@@ -6,6 +6,7 @@
 #include "video/video.h"
 #include "baseio/uprint.h"
 #include "baseio/printf.h"
+#include "utils/panic.h"
 
 int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   vga_init_term();
@@ -23,5 +24,7 @@ int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   }
 
 //  _itoa(x, 255, 0xaabbccddeeff, 16, false);
+//  panic("i ain't feeling too good");
+  cpanic(0xE291A800, "stoopid!!");
   return 0;
 }

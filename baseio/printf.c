@@ -8,7 +8,9 @@
 #define SLIM_OR_LIM(U) (lim - ou_idx >= U) ? U : (lim - ou_idx)
 #define ISERR(U) (U == -1) ? true : false
 
-int _itoa(char *buf, u8 lim, u32 num, u8 base, bool uppercase) { 
+char global_buf[65536] = {0}; // 64KiB ought to be enough
+
+int _utoa(char *buf, u8 lim, u32 num, u8 base, bool uppercase) { 
   
   char *lc = "0123456789abcdef";
   char *uc = "0123456789ABCDEF";
@@ -62,27 +64,42 @@ void _vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
     }
     switch (*fmt) {
 
-      case 'U' :
+      case 'b' : {
+        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(32), va_arg(ap, u32), 2, false);
+        fmt++;
+        break;
+      }
+
       case 'u' : {
-        ou_idx += _itoa(buf + ou_idx, SLIM_OR_LIM(20), va_arg(ap, int), 10, false);
+        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(10), va_arg(ap, u32), 10, false);
         fmt++;
         break;
       }
       
       case 'x' : {
-        ou_idx += _itoa(buf + ou_idx, SLIM_OR_LIM(16), va_arg(ap, u32), 16, false);
+        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(8), va_arg(ap, u32), 16, false);
         fmt++;
         break;
       }
 
       case 'X' : {
-        ou_idx += _itoa(buf + ou_idx, SLIM_OR_LIM(16), va_arg(ap, u32), 16, true);
+        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(8), va_arg(ap, u32), 16, true);
+        fmt++;
+        break;
+      }
+
+      case 's' : {
+        char *str = va_arg(ap, char*);
+        while(*str) {
+          buf[ou_idx++] = *str++;
+        }
         fmt++;
         break;
       }
 
       case '!' : {
         uprint(va_arg(ap, char*));
+        fmt++;
         break;
       }
 
@@ -101,3 +118,20 @@ void vsnprintf_(char *buf, size_t lim, const char *fmt, ...) {
   _vsnprintf(buf, lim, fmt, ap);
   va_end(ap);
 }
+
+void printf(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  _vsnprintf(global_buf, 65536, fmt, ap);
+  uprintc(global_buf, default_color);
+  va_end(ap);
+}
+
+void cprintf(u8 col, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  _vsnprintf(global_buf, 65536, fmt, ap);
+  uprintc(global_buf, col);
+  va_end(ap);
+}
+

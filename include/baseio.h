@@ -8,6 +8,6 @@ void uprint(char *str);
 void uprintc(char *str, unsigned char col);
 
 int _sprintf(char *buff, char *fmt, va_list ap);
-int printf(char *fmt, ...);
+void printf(char *fmt, ...);
 
 #endif /* __BASEIO_H */

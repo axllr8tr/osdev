@@ -5,5 +5,7 @@
 
 extern void _vsnprintf(char *, size_t, const char *, va_list);
 extern void vsnprintf_(char *, size_t, const char *, ...);
+extern void printf(char *, ...);
+extern void cprintf(u8, char *, ...);
 
 #endif /* __PRINTF_H */
