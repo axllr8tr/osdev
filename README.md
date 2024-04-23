@@ -1,3 +1,5 @@
-# osdev
+# thos
+this is my osdev project made for no reason at all.
 
-osdev (again); x86, c+asm only, mit license
+proceed at your own risk, may eat your cat
+
