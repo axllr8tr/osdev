@@ -47,9 +47,9 @@ void putc(u8 ch, u8 co) {
     }
     default : {
       vga_put_entry_at(vga_gen_entry(ch, co), x, y);
-      if (x < width) x++;
+      if (x < (width - 1)) { x++; }
       else { x = 0; y++; }
-      if (y > height) y = 0;
+      if (y > (height - 1)) y = 0;
       break;
     }
   }

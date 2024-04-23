@@ -110,6 +110,7 @@ void _vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
       }
     }
   }
+  buf[ou_idx] = 0; // string terminator
 }
 
 void vsnprintf_(char *buf, size_t lim, const char *fmt, ...) {
