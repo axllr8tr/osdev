@@ -97,6 +97,13 @@ void _vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
         break;
       }
 
+      case 'c' : {
+        char chr = va_arg(ap, int);
+        buf[ou_idx++] = chr & 0xff; // for safety
+        fmt++;
+        break;
+      }
+
       case '!' : {
         uprint(va_arg(ap, char*));
         fmt++;
