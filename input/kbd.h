@@ -4,23 +4,21 @@
 #include "../include/defs.h"
 
 
-#define MODIFIER_CTRL   0b10000000 
-#define MODIFIER_SHIFT  0b01000000 
-#define MODIFIER_ALT    0b00100000 
-#define MODIFIER_SUPER  0b00010000
-#define MODIFIER_RCTRL  0b00001000
-#define MODIFIER_RSHIFT 0b00000100
-#define MODIFIER_RALT   0b00000010
-#define MODIFIER_RSUPER 0b00000001
+// mod flags
+#define MODIFIER_CTRL   1<<7
+#define MODIFIER_SHIFT  1<<6
+#define MODIFIER_ALT    1<<5
+#define MODIFIER_SUPER  1<<4
+#define MODIFIER_RCTRL  1<<3
+#define MODIFIER_RSHIFT 1<<2
+#define MODIFIER_RALT   1<<1
+#define MODIFIER_RSUPER 1<<0 
 
-#define MOD_CTRL        (globalModifiers >> 7) & 1
-#define MOD_SHIFT       (globalModifiers >> 6) & 1
-#define MOD_ALT         (globalModifiers >> 5) & 1
-#define MOD_SUPER       (globalModifiers >> 4) & 1
-#define MOD_RCTRL       (globalModifiers >> 3) & 1
-#define MOD_RSHIFT      (globalModifiers >> 2) & 1
-#define MOD_RALT        (globalModifiers >> 1) & 1
-#define MOD_RSUPER      globalModifiers & 1
+// lock flags
+#define LOCK_CAPS   1<<7
+#define LOCK_SCROLL 1<<6
+#define LOCK_NUM    1<<5
+#define LOCK_KANA   1<<4 // to be used way, way in the future
 
 // mod keys 
 #define KEY_CTRL        0x1d
@@ -32,7 +30,8 @@
 #define KEY_RALT        0 
 #define KEY_RSUPER      0 // not doing extended keys for now
 #define KEY_CAPSLOCK    0x3a 
-// func keys
+
+// function keys
 #define KEY_F1          0x3b
 #define KEY_F2          0x3c
 #define KEY_F3          0x3d
@@ -48,21 +47,25 @@
 extern const char kbd_layout_us_qwerty[128];
 
 struct scode_t {
-  u32 rawScancode;
-  u8 bit0; 
-  u8 bit1;
-  u8 bit2; // 0x45: pause, 0xe0: prtscr
-  u8 bit3;
-   
+  union {
+    u32 rawScancode;
+    struct {
+      u8 bit0; 
+      u8 bit1;
+      u8 bit2; // 0x45: pause, 0xe0: prtscr
+      u8 bit3;
+    };
+    u8 bits[4];
+  };
   bool extended; // bit0 == 0xe0
   bool released; // bit0 > 0x60 && bit0 != 0xe0
 };
 
 struct keyEvent {
   struct scode_t scancode;
-  bool pressed;  // 0 for released, 1 for pressed
+  bool pressed;   // 0 for released, 1 for pressed
   bool printable;
-  char pchar;
+  char pchar;    // printable char in kbd_layout_us_qwerty[]
   u8 modifiers;  // (msb first) ctrl, shift, alt, super, rctrl, rshift, ralt, rsuper
   u8 locks;      // (msb first) caps, scroll, num
 } __attribute__((packed));
