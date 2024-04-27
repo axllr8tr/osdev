@@ -5,20 +5,20 @@
 
 
 // mod flags
-#define MODIFIER_CTRL   1<<7
-#define MODIFIER_SHIFT  1<<6
-#define MODIFIER_ALT    1<<5
-#define MODIFIER_SUPER  1<<4
-#define MODIFIER_RCTRL  1<<3
-#define MODIFIER_RSHIFT 1<<2
-#define MODIFIER_RALT   1<<1
-#define MODIFIER_RSUPER 1<<0 
+#define MODIFIER_CTRL   1u<<7
+#define MODIFIER_SHIFT  1u<<6
+#define MODIFIER_ALT    1u<<5
+#define MODIFIER_SUPER  1u<<4
+#define MODIFIER_RCTRL  1u<<3
+#define MODIFIER_RSHIFT 1u<<2
+#define MODIFIER_RALT   1u<<1
+#define MODIFIER_RSUPER 1u<<0 
 
 // lock flags
-#define LOCK_CAPS   1<<7
-#define LOCK_SCROLL 1<<6
-#define LOCK_NUM    1<<5
-#define LOCK_KANA   1<<4 // to be used way, way in the future
+#define LOCK_CAPS   1u<<7
+#define LOCK_SCROLL 1u<<6
+#define LOCK_NUM    1u<<5
+#define LOCK_KANA   1u<<4 // to be used way, way in the future
 
 // mod keys 
 #define KEY_CTRL        0x1d
@@ -46,30 +46,33 @@
 
 extern const char kbd_layout_us_qwerty[128];
 
-struct scode_t {
+typedef struct scode {
   union {
     u32 rawScancode;
     struct {
-      u8 bit0; 
-      u8 bit1;
-      u8 bit2; // 0x45: pause, 0xe0: prtscr
-      u8 bit3;
+      u8 byte0; 
+      u8 byte1;
+      u8 byte2; // 0x45: pause, 0xe0: prtscr
+      u8 byte3;
     };
-    u8 bits[4];
+    u8 bytes[4];
   };
-  bool extended; // bit0 == 0xe0
-  bool released; // bit0 > 0x60 && bit0 != 0xe0
-};
+  bool extended; // byte0 == 0xe0
+  bool released; // byte0 > 0x60 && byte0 != 0xe0
+} __attribute__((packed)) scode_t;
 
-struct keyEvent {
-  struct scode_t scancode;
+typedef struct keyevent {
+  scode_t scancode;
   bool pressed;   // 0 for released, 1 for pressed
   bool printable;
-  char pchar;    // printable char in kbd_layout_us_qwerty[]
-  u8 modifiers;  // (msb first) ctrl, shift, alt, super, rctrl, rshift, ralt, rsuper
-  u8 locks;      // (msb first) caps, scroll, num
-} __attribute__((packed));
+  char pchar;     // printable char in kbd_layout_us_qwerty[]
+  u8 modifiers;   // (msb first) ctrl, shift, alt, super, rctrl, rshift, ralt, rsuper
+  u8 locks;       // (msb first) caps, scroll, num
+} __attribute__((packed)) keyevent_t;
 
 extern char scancodeChars[];
+
+void receive_keystroke(scode_t*);
+void keystroke_to_keyevent(scode_t*, keyevent_t*);
 
 #endif /* _KBD_H */

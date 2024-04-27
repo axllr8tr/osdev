@@ -12,19 +12,31 @@
 #include "llhw/8259_pic.h"
 #include "input/kbd.h"
 
+
+
 int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   vga_init_term();
 
-  u32 scode = 0x0;
+  scode_t a, b;
+  keyevent_t a1, b1;
 
   fix_pic();
 
   printf("Hello, world!\n");
- 
+
   do { 
-    scode = ps2d_receive_data();
-    if ((scode & 0xff) < 0x80) printf("%c", kbd_layout_us_qwerty[*(u8p)&scode]);
-} while (true);
+    receive_keystroke(&b);
+    keystroke_to_keyevent(&b, &b1);
+    if(b.rawScancode != a.rawScancode) {
+      vga_init_term();
+      printf("ks rl %B pr %B sc %x fl %b lk %b", !b1.pressed, b1.printable, b1.scancode.rawScancode, b1.modifiers, b1.locks);
+      if (b1.printable) {
+        printf(" ch %c\n", b1.pchar);
+      }
+    }
+    a = b;
+    a1 = b1;
+  } while (true);
 
   return 0;
 }

@@ -95,7 +95,7 @@ typedef struct pci_header_common {
       u8 cacheline_size;
     };
   };
-} pci_header_common_t;
+} __attribute__((packed)) pci_header_common_t;
 
 // i am sorry that i have put so many unions
 // but that might kinda help in the future when i'm debugging stuff
@@ -168,7 +168,7 @@ typedef struct pci_header_general_device {
       u8 int_line;
     };
   };
-} pci_header_general_device_t;
+} __attribute__((packed)) pci_header_general_device_t;
 
 typedef struct pci_header_pci_to_pci {
   pci_header_common_t common_header;
@@ -247,6 +247,6 @@ typedef struct pci_header_pci_to_pci {
       u8 int_line;
     };
   };
-} pci_header_pci_to_pci_t;
+} __attribute__((packed)) pci_header_pci_to_pci_t;
 
 #endif /* _PCI_HEADER_H */

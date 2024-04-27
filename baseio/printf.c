@@ -65,7 +65,7 @@ void _vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
     switch (*fmt) {
 
       case 'b' : {
-        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(32), va_arg(ap, u32), 2, false);
+        ou_idx += _utoa(buf + ou_idx, SLIM_OR_LIM(8), va_arg(ap, u32), 2, false);
         fmt++;
         break;
       }
@@ -100,6 +100,13 @@ void _vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
       case 'c' : {
         char chr = va_arg(ap, int);
         buf[ou_idx++] = chr & 0xff; // for safety
+        fmt++;
+        break;
+      }
+
+      case 'B' : {
+        int a = va_arg(ap, int);
+        buf[ou_idx++] = a ? 't' : 'f';
         fmt++;
         break;
       }
