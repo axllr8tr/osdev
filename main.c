@@ -11,10 +11,15 @@
 #include "llhw/8042_ps2.h"
 #include "llhw/8259_pic.h"
 #include "input/kbd.h"
-
+#include "cpu/gdt.h"
 
 
 int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
+  asm volatile ("cli");
+  gdt_setup_flat();
+  gdt_deploy_flat();
+  asm volatile ("sti");
+
   vga_init_term();
 
   scode_t a, b;

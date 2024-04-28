@@ -24,14 +24,6 @@ void receive_keystroke(scode_t *target) {
 void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
   keyevent_t ret;
   switch (keystroke->byte3 & 0x7f) {
-    case KEY_CAPSLOCK : {
-      if (key_locks & LOCK_CAPS) {
-        key_locks &= ~LOCK_CAPS;
-      } else {
-        key_locks |= LOCK_CAPS;
-      }
-      break;
-    }
     case KEY_SHIFT : {
       if(keystroke->released) {
         key_flags &= ~MODIFIER_SHIFT;
