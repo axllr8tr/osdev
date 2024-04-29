@@ -24,6 +24,15 @@ GPP_ARGS="-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -I $ROOT_DI
 LD_ARGS="-T $LD_SCRIPT -o $OUT_FILE -ffreestanding -O0 -nostdlib -fno-use-linker-plugin -fpermissive"
 QEMU_ARGS="-kernel $OUT_FILE"
 
+if [ ! -d $OUT_DIR ] ; then 
+  mkdir $OUT_DIR
+fi
+
+if [ ! -d $TMP_DIR ] ; then 
+  mkdir $TMP_DIR
+fi
+
+
 echo "Cleaning up..."
 rm -rfv $TMP_DIR/* 2>/dev/null
 

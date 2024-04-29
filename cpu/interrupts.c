@@ -6,6 +6,6 @@ __attribute__((interrupt)) void interrupt_handler_generic(x86_simple_interrupt_f
 } 
 
 __attribute__((interrupt)) void interrupt_handler_err(x86_simple_interrupt_frame_t *iframe) {
-  cpanic(0xfffffff, "Caught an interrupt with an error code");
+  cpanic(0xfffffff, "Caught an interrupt with error code");
 } 
 
