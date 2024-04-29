@@ -12,12 +12,15 @@
 #include "llhw/8259_pic.h"
 #include "input/kbd.h"
 #include "cpu/gdt.h"
+#include "cpu/idt.h"
 
 
 int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   asm volatile ("cli");
   gdt_setup_flat();
   gdt_deploy_flat();
+  idt_setup_exception_handlers();
+  idt_deploy();
   asm volatile ("sti");
 
   vga_init_term();
