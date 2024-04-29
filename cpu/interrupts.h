@@ -13,17 +13,17 @@ typedef struct iframe {
 } x86_simple_interrupt_frame_t; 
 
 typedef struct eiframe {
-  u32 di, si, bp, sp, bx, dx, cx, ax;
-  u32 ds, es, fs, gs;
+  u32 gs, fs, es, ds;
+  u32 esi, edi, ebp, esp, ebx, edx, ecx, eax;
   u32 vector;
   u32 err;
   u32 eip, cs, eflags;
-  u32 user_sp, user_flags;
-} x86_extended_interrupt_frame_t;
+  u32 iret_esp, iret_ss;
+} __attribute__((packed)) x86_extended_interrupt_frame_t;
 
 // entry points
-void interrupt_handler_generic_entry(); /* traps.S */
-void interrupt_handler_err_entry(); /* traps.S */
+void interrupt_handler_generic_entry(); /* interrupts.S */
+void interrupt_handler_err_entry(); /* interrupts.S */
 
 // actual handlers
 void interrupt_handler_generic(x86_extended_interrupt_frame_t*);

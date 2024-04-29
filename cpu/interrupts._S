@@ -1,23 +1,24 @@
+/* to be used later */
 .extern interrupt_handler_generic
 .global interrupt_handler_generic_entry
 interrupt_handler_generic_entry:
   pushal
-  push %gs 
-  push %fs
-  push %es
   push %ds
+  push %es
+  push %fs
+  push %gs 
   movl $0x10, %eax
-  movl %eax, %gs 
-  movl %eax, %fs 
-  movl %eax, %es
-  movl %eax, %ds
-  pushl %esp
+  movl %eax, %ds 
+  movl %eax, %es 
+  movl %eax, %fs
+  movl %eax, %gs
+  movl %esp, %edi 
   call interrupt_handler_generic 
   popl %eax 
-  pop %ds
-  pop %es
-  pop %fs
   pop %gs
+  pop %fs
+  pop %es
+  pop %ds
   popal
   iret
 
@@ -25,21 +26,21 @@ interrupt_handler_generic_entry:
 .global interrupt_handler_err_entry
 interrupt_handler_err_entry:
   pushal
-  push %gs 
-  push %fs
+  push %ds 
   push %es
-  push %ds
+  push %fs
+  push %gs
   movl $0x10, %eax
-  movl %eax, %gs 
-  movl %eax, %fs 
-  movl %eax, %es
-  movl %eax, %ds
+  movl %eax, %ds 
+  movl %eax, %es 
+  movl %eax, %fs
+  movl %eax, %gs
   pushl %esp
   call interrupt_handler_err
   popl %eax 
-  pop %ds
-  pop %es
-  pop %fs
   pop %gs
+  pop %fs
+  pop %es
+  pop %ds
   popal
   iret

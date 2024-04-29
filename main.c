@@ -23,7 +23,10 @@ int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   idt_deploy();
   asm volatile ("sti");
 
+  asm volatile ("int $0x10");
+
   vga_init_term();
+
 
   scode_t a, b;
   keyevent_t a1, b1;
