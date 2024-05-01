@@ -15,6 +15,8 @@ const char kbd_layout_us_qwerty[128] = {
 
 volatile u8 key_flags = 0;
 volatile u8 key_locks = 0;
+scode_t global_keystroke;
+keyevent_t global_keyevent; // getch()
 
 void receive_keystroke(scode_t *target) {
   u32 scancode = inl(0x60); // ps/2 only
@@ -128,4 +130,10 @@ char handle_keyevent(keyevent_t *keyevent) {
     return shift_character(keyevent->pchar) + 0x40; // Ctrl-Shift-c -> ^[C -> \eC -> \x83 
   }
   return 0;
+}
+
+char getch() {
+  receive_keystroke(&global_keystroke);
+  keystroke_to_keyevent(&global_keystroke, &global_keyevent);
+  return handle_keyevent(&global_keyevent); // bad idea probably
 }

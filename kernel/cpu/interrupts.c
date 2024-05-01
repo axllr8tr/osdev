@@ -6,6 +6,7 @@
 #include "../utils/io_ports.h"
 #include "../input/kbd.h"
 #include "../video/video.h"
+#include "../system/syscalls.h"
 
 const char *exception_messages[] = {
   "Division by zero", // 0x00
@@ -44,9 +45,7 @@ const char *exception_messages[] = {
 
 void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
   switch (iframe->vector) { 
-    case 0x7f : {
-      break;
-    }
+    case 0x7f : execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx, iframe->esi, iframe->edi);
     default : {
       cprintf(0x6f, 
           "Caught an interrupt v=%x e=%x\n"
@@ -63,15 +62,14 @@ void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
 void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
   scode_t a;
   keyevent_t b;
+  extern void keyboard_handler_userspace();
   // printf("Caught an IRQ #%u\n", iframe->vector - 0x20);
   switch (iframe->vector - 32) {
     case 0: {
       break;
     }
     case 1: {
-      receive_keystroke(&a);
-      keystroke_to_keyevent(&a, &b);
-      handle_keyevent(&b);
+//      keyboard_handler_userspace();
       break;
     }
   }

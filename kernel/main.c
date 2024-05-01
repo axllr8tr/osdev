@@ -26,13 +26,11 @@ int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
 
   vga_init_term();
 
-  asm volatile ("int $0x7f");
-
   scode_t a, b;
   keyevent_t a1, b1;
 
-
-  printf("Hello, world!\n");
+ extern void shell_entry();
+ shell_entry();
 
 
   // do { 
