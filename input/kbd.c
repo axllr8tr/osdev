@@ -1,5 +1,7 @@
 #include "../include/defs.h"
 #include "../utils/io_ports.h"
+#include "../baseio/printf.h"
+#include "../video/video.h"
 #include "kbd.h"
 
 const char kbd_layout_us_qwerty[128] = {
@@ -44,7 +46,86 @@ void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
   keyevent->scancode = *keystroke;
   keyevent->locks = key_locks;
   keyevent->modifiers = key_flags;
-  keyevent->printable = ((keystroke->byte0 & 0x7f) < 0x58) && kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] >= 0x20;
+  keyevent->printable = ((keystroke->byte0 & 0x7f) < 0x58) && kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] >= 0x20 || kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] == '\n';
   keyevent->pchar = kbd_layout_us_qwerty[keystroke->byte0 & 0x7f]; // even more stupid
   keyevent->pressed = !keystroke->released; // nice
+}
+
+char shift_character(char chr) {
+  // BADCODE: didn't think of anything clever :(
+  if (chr >= 0x41 && chr <= 0x5a) 
+    return chr + 0x20;
+  if (chr >= 0x61 && chr <= 0x7a) 
+    return chr - 0x20;
+  switch (chr) {
+    case '1':
+      return '!';
+    case '2':
+      return '@';
+    case '3':
+      return '#';
+    case '4':
+      return '$';
+    case '5':
+      return '%';
+    case '6':
+      return '^';
+    case '7':
+      return '&';
+    case '8':
+      return '*';
+    case '9':
+      return '(';
+    case '0':
+      return ')';
+    case '-':
+      return '_';
+    case '+':
+      return '=';
+    case '[':
+      return '{';
+    case ']':
+      return '}';
+    case '\\':
+      return '|';
+    case ';':
+      return ':';
+    case '\'':
+      return '"';
+    case ',':
+      return '<';
+    case '.':
+      return '>';
+    case '/':
+      return '?';
+    case '`':
+      return '~';
+    default: {
+      return 0;
+    }
+  }
+}
+
+static bool is_letter(char chr) {
+  return (chr >= 0x41 && chr <= 0x5a) || (chr >= 0x61 && chr <= 0x7a);
+}
+
+// BADCODE: mess
+char handle_keyevent(keyevent_t *keyevent) {
+  if (keyevent->pressed && keyevent->printable && !keyevent->modifiers) {
+    return keyevent->pchar;
+  }
+  if (keyevent->pressed && keyevent->printable && keyevent->modifiers & MODIFIER_SHIFT && !(keyevent->modifiers & MODIFIER_CTRL)) {
+    return shift_character(keyevent->pchar);
+  }
+  if (keyevent->pressed && keyevent->printable && !keyevent->modifiers && key_locks & LOCK_CAPS && is_letter(keyevent->pchar)) {
+    return shift_character(keyevent->pchar);
+  }
+  if (keyevent->pressed && keyevent->modifiers & MODIFIER_CTRL && !(keyevent->modifiers & MODIFIER_SHIFT)) {
+    return shift_character(keyevent->pchar) - 0x40; // Ctrl-c -> ^C -> \x03
+  }
+  if (keyevent->pressed && keyevent->modifiers & MODIFIER_CTRL && keyevent->modifiers & MODIFIER_SHIFT) {
+    return shift_character(keyevent->pchar) + 0x40; // Ctrl-Shift-c -> ^[C -> \eC -> \x83 
+  }
+  return 0;
 }

@@ -26,6 +26,10 @@ u16 vga_gen_entry(u8 ch, u8 co) {
   return (co << 8) | ch;
 }
 
+u16 vga_get_entry_at(u16 _x, u16 _y) {
+  return vga_textmode_mmio[coord_to_offs(_x, _y)];
+}
+
 void vga_fill_screen(u16 ent) {
   for (u16 j = 0; j < height; j++)
     for (u16 i = 0; i < width; i++)
@@ -42,7 +46,10 @@ void putc(u8 ch, u8 co) {
   switch (ch) {
     case '\n' : {
       x = 0;
-      y++;
+      if (y < width - 1)
+        y++;
+      else
+        y = 0;
       break;
     }
     default : {

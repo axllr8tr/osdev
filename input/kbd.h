@@ -5,20 +5,20 @@
 
 
 // mod flags
-#define MODIFIER_CTRL   1u<<7
-#define MODIFIER_SHIFT  1u<<6
-#define MODIFIER_ALT    1u<<5
-#define MODIFIER_SUPER  1u<<4
-#define MODIFIER_RCTRL  1u<<3
-#define MODIFIER_RSHIFT 1u<<2
-#define MODIFIER_RALT   1u<<1
-#define MODIFIER_RSUPER 1u<<0 
+#define MODIFIER_CTRL   (1u<<7)
+#define MODIFIER_SHIFT  (1u<<6)
+#define MODIFIER_ALT    (1u<<5)
+#define MODIFIER_SUPER  (1u<<4)
+#define MODIFIER_RCTRL  (1u<<3)
+#define MODIFIER_RSHIFT (1u<<2)
+#define MODIFIER_RALT   (1u<<1)
+#define MODIFIER_RSUPER (1u<<0)
 
 // lock flags
-#define LOCK_CAPS   1u<<7
-#define LOCK_SCROLL 1u<<6
-#define LOCK_NUM    1u<<5
-#define LOCK_KANA   1u<<4 // to be used way, way in the future
+#define LOCK_CAPS   (1u<<7)
+#define LOCK_SCROLL (1u<<6)
+#define LOCK_NUM    (1u<<5)
+#define LOCK_KANA   (1u<<4) // to be used way, way in the future
 
 // mod keys 
 #define KEY_CTRL        0x1d
@@ -74,5 +74,6 @@ extern char scancodeChars[];
 
 void receive_keystroke(scode_t*);
 void keystroke_to_keyevent(scode_t*, keyevent_t*);
+char handle_keyevent(keyevent_t*);
 
 #endif /* _KBD_H */

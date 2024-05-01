@@ -71,7 +71,7 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
     case 1: {
       receive_keystroke(&a);
       keystroke_to_keyevent(&a, &b);
-      printf("%c", b.pchar * b.pressed);
+      handle_keyevent(&b);
       break;
     }
   }
