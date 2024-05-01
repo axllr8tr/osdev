@@ -40,64 +40,37 @@ const char *exception_messages[] = {
   "Reserved" // 0x1f
 };
 
-static void interrupt_send_end() {
+void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
+  printf("WARNING: caught an interrupt v=%x e=%x\n", iframe->vector, iframe->err);
+  
+} 
+
+void interrupt_handler_err(x86_extended_interrupt_frame_t *iframe) {
+  cprintf(0x40,
+          "\nCaught an interrupt!!\n"
+          "iret ss %x iret esp %x\n"
+          "eflags %x cs %x eip %x\n"
+          "err %x vector %x\n"
+          "eax %x ecx %x edx %x ebx %x\n"
+          "esp %x ebp %x edi %x esi %x\n"
+          "ds %x es %x fs %x gs %x\n"
+          "%s\n",
+          iframe->iret_ss, iframe->iret_esp, iframe->eflags, iframe->cs, iframe->eip, iframe->err, iframe->vector, iframe->eax, iframe->ecx, iframe->edx, iframe->ebx, iframe->esp, iframe->ebp, iframe->edi, iframe->esi, iframe->ds, iframe->es, iframe->fs, iframe->gs, exception_messages[iframe->vector]
+  );
+  asm volatile ("hlt");
+} 
+
+void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
+  printf("Caught an IRQ #%u\n", iframe->vector);
   outb(0x20, 0x20);
+  outb(0xa0, 0x20);
 }
 
-static void interrupt_send_end_extended() {
-  outb(0xa0, 0xa0);
+void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {
+  cprintf(0x4f,
+          "Caught an interrupt!\n"
+          "Err %x Vec %x EFlags %x CS %x EIP %x\n",
+          iframe->err, iframe->vector, iframe->eflags, iframe->cs, iframe->eip
+  );
+  asm volatile ("hlt");
 }
-
-__attribute__((interrupt)) void interrupt_handler_generic(x86_gcc_interrupt_frame_t *iframe, u32 vector) {
-}
-
-__attribute__((interrupt)) void interrupt_handler_irq(x86_gcc_interrupt_frame_t* iframe, u32 vector) {
-  printf("\nCaught an IRQ #%x", vector);
-  outb(0x20, 0x20);
-}
-
-// __attribute__((interrupt)) void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
-//   cprintf(0x70, 
-//           "\nCaught an interrupt!!\n"
-//           "iret ss %x iret esp %x\n"
-//           "eflags %x cs %x eip %x\n"
-//           "err %x vector %x\n"
-//           "eax %x ecx %x edx %x ebx %x\n"
-//           "esp %x ebp %x edi %x esi %x\n"
-//           "ds %x es %x fs %x gs %x\n"
-//           "%s\n",
-//           iframe->iret_ss, iframe->iret_esp, iframe->eflags, iframe->cs, iframe->eip, iframe->err, iframe->vector, iframe->eax, iframe->ecx, iframe->edx, iframe->ebx, iframe->esp, iframe->ebp, iframe->edi, iframe->esi, iframe->ds, iframe->es, iframe->fs, iframe->gs, exception_messages[iframe->vector]
-//   );
-//
-//   // interrupt_send_end();
-//   asm volatile ("hlt");
-// } 
-//
-// __attribute__((interrupt)) void interrupt_handler_err(x86_extended_interrupt_frame_t *iframe) {
-//   cprintf(0x40,
-//           "\nCaught an interrupt!!\n"
-//           "iret ss %x iret esp %x\n"
-//           "eflags %x cs %x eip %x\n"
-//           "err %x vector %x\n"
-//           "eax %x ecx %x edx %x ebx %x\n"
-//           "esp %x ebp %x edi %x esi %x\n"
-//           "ds %x es %x fs %x gs %x\n"
-//           "%s\n",
-//           iframe->iret_ss, iframe->iret_esp, iframe->eflags, iframe->cs, iframe->eip, iframe->err, iframe->vector, iframe->eax, iframe->ecx, iframe->edx, iframe->ebx, iframe->esp, iframe->ebp, iframe->edi, iframe->esi, iframe->ds, iframe->es, iframe->fs, iframe->gs, exception_messages[iframe->vector]
-//   );
-//   asm volatile ("hlt");
-// } 
-//
-// __attribute__((interrupt)) void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
-//   printf("Caught an IRQ #%u\n", iframe->vector);
-//   interrupt_send_end_extended();
-// }
-//
-// void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {
-//   cprintf(0x4f,
-//           "Caught an interrupt!\n"
-//           "Err %x Vec %x EFlags %x CS %x EIP %x\n",
-//           iframe->err, iframe->vector, iframe->eflags, iframe->cs, iframe->eip
-//   );
-//   asm volatile ("hlt");
-// }

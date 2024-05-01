@@ -5,9 +5,10 @@
   .global _isr\no
   _isr\no\():
     cli
-    push 0
-    push \no
-    jmp isr_generic_wrapper
+    push $0
+    push $\no
+    ljmp $8, $1f 
+1:  jmp isr_generic_wrapper
 .endm
 
 .macro isr_error no=0
@@ -15,18 +16,19 @@
   .global _isr\no
   _isr\no\():
     cli
-    push \no
-    jmp isr_generic_wrapper
+    push $\no
+    ljmp $8, $1f 
+1:  jmp isr_generic_wrapper    
 .endm
 
 .macro irq no=0, rno=32
-.byte \no
+.byte \rno
   .global _irq\no
   _irq\no\():
     cli
-    push 0
-    push \no
-    jmp irq_handler_wrapper
+    push $\rno
+    ljmp $8, $1f 
+1:  jmp irq_handler_wrapper
 .endm
 
 
@@ -66,7 +68,19 @@ isr_generic 127
 irq         0   32
 irq         1   33
 irq         2   34
-
+irq         3   35
+irq         4   36
+irq         5   37
+irq         6   38
+irq         7   39
+irq         8   40
+irq         9   41
+irq         10  42
+irq         11  43
+irq         12  44
+irq         13  45
+irq         14  46
+irq         15  47
 
 .extern interrupt_handler_generic
 .global isr_generic_wrapper
@@ -83,15 +97,9 @@ isr_generic_wrapper:
   push %es
   push %fs
   push %gs 
-  movl $0x10, %eax
-  movl %eax, %ds
-  movl %eax, %es
-  movl %eax, %fs
-  movl %eax, %gs
-  movl %esp, %edi 
-  push %edi
+  push %esp
   call interrupt_handler_generic 
-  pop %edi
+  pop %esp
   pop %gs
   pop %fs
   pop %es
@@ -104,7 +112,7 @@ isr_generic_wrapper:
   pop %edx
   pop %ecx
   pop %eax
-  add $16, %esp
+  add $8, %esp
   iret
 
 .extern interrupt_handler_irq
@@ -122,15 +130,9 @@ irq_handler_wrapper:
   push %es
   push %fs
   push %gs 
-  movl $0x10, %eax
-  movl %eax, %ds
-  movl %eax, %es
-  movl %eax, %fs
-  movl %eax, %gs
-  movl %esp, %edi 
-  push %edi
+  push %esp
   call interrupt_handler_irq
-  pop %edi
+  pop %esp
   pop %gs
   pop %fs
   pop %es
@@ -143,7 +145,7 @@ irq_handler_wrapper:
   pop %edx
   pop %ecx
   pop %eax
-  add $16, %esp
+  add $8, %esp
   iret
  
 

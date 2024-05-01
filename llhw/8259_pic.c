@@ -21,13 +21,13 @@ void init_pic(u8 offs1, u8 offs2) {
   outb(PIC2_DATA, 2);
   io_wait();
 
-  outb(PIC1_DATA, ICW4_8086);
-  io_wait();
-  outb(PIC2_DATA, ICW4_8086);
-  io_wait();
+  // outb(PIC1_DATA, ICW4_AUTO);
+  // io_wait();
+  // outb(PIC2_DATA, ICW4_AUTO);
+  // io_wait();
 
-  outb(PIC1_DATA, a1); // restore masks
-  outb(PIC2_DATA, a2);
+  outb(PIC1_DATA, 0xff);
+  outb(PIC2_DATA, 0xff);
 }
 
 void fix_pic() { 
