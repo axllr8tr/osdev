@@ -61,12 +61,18 @@ typedef struct eiframe {
   u32 iret_esp, iret_ss;
 } __attribute__((packed)) x86_extended_interrupt_frame_t;
 
+typedef struct giframe {
+  u32 eip, cs, eflags, esp, ss;
+} __attribute__((packed)) x86_gcc_interrupt_frame_t;
+
 // entry points
 void interrupt_handler_generic_entry(); /* interrupts.S */
 void interrupt_handler_err_entry(); /* interrupts.S */
+// TODO: remove assembly stuff as everything is redone in C
 
 // actual handlers
-void interrupt_handler_generic(x86_extended_interrupt_frame_t*);
-void interrupt_handler_err(x86_extended_interrupt_frame_t*);
+void interrupt_handler_generic(x86_gcc_interrupt_frame_t*, u32);
+void interrupt_handler_irq(x86_gcc_interrupt_frame_t*, u32);
+// void interrupt_handler_err(x86_extended_interrupt_frame_t*);
 
 #endif /* _INTERRUPTS_H */

@@ -24,7 +24,8 @@
   .global _irq\no
   _irq\no\():
     cli
-    push \rno
+    push 0
+    push \no
     jmp irq_handler_wrapper
 .endm
 
