@@ -7,7 +7,7 @@
     cli
     push 0
     push \no
-    jmp interrupt_handler_generic_entry
+    jmp isr_generic_wrapper
 .endm
 
 .macro isr_error no=0
@@ -16,8 +16,18 @@
   _isr\no\():
     cli
     push \no
-    jmp interrupt_handler_generic_entry
+    jmp isr_generic_wrapper
 .endm
+
+.macro irq no=0, rno=32
+.byte \no
+  .global _irq\no
+  _irq\no\():
+    cli
+    push \rno
+    jmp irq_handler_wrapper
+.endm
+
 
 isr_generic 0
 isr_generic 1
@@ -51,11 +61,15 @@ isr_generic 28
 isr_error   29
 isr_error   30
 isr_error   31
+isr_generic 127
+irq         0   32
+irq         1   33
+irq         2   34
 
 
 .extern interrupt_handler_generic
-.global interrupt_handler_generic_entry
-interrupt_handler_generic_entry:
+.global isr_generic_wrapper
+isr_generic_wrapper:
   push %eax
   push %ecx
   push %edx
@@ -92,6 +106,47 @@ interrupt_handler_generic_entry:
   add $16, %esp
   iret
 
+.extern interrupt_handler_irq
+.global irq_handler_wrapper
+irq_handler_wrapper:
+  push %eax
+  push %ecx
+  push %edx
+  push %ebx
+  push %esp
+  push %ebp
+  push %edi
+  push %esi
+  push %ds
+  push %es
+  push %fs
+  push %gs 
+  movl $0x10, %eax
+  movl %eax, %ds
+  movl %eax, %es
+  movl %eax, %fs
+  movl %eax, %gs
+  movl %esp, %edi 
+  push %edi
+  call interrupt_handler_irq
+  pop %edi
+  pop %gs
+  pop %fs
+  pop %es
+  pop %ds
+  pop %esi
+  pop %edi
+  pop %ebp
+  pop %esp
+  pop %ebx
+  pop %edx
+  pop %ecx
+  pop %eax
+  add $16, %esp
+  iret
+ 
+
+/*
 .extern interrupt_handler_err
 .global interrupt_handler_err_entry
 interrupt_handler_err_entry:
@@ -130,5 +185,4 @@ interrupt_handler_err_entry:
   pop %eax
   add $16, %esp
   iret
-
-
+  */

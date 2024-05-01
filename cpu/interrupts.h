@@ -36,19 +36,25 @@ extern void _isr29();
 extern void _isr30();
 extern void _isr31();
 extern void _isr32();
+extern void _isr127();
+extern void _irq0();
+extern void _irq1();
+extern void _irq2();
 
 // not sure if this is even right
 typedef struct iframe {
+  u32 vector;
+  u32 err;
   u32 eip;
-  u16 cs;
+  u32 cs;
   u32 eflags;
   u32 esp;
-  u16 ss;
+  u32 ss;
 } x86_simple_interrupt_frame_t; 
 
 typedef struct eiframe {
   u32 gs, fs, es, ds;
-  u16 esi, edi, ebp, esp, ebx, edx, ecx, eax; // TODO: remove 'e's from names and account for that
+  u32 esi, edi, ebp, esp, ebx, edx, ecx, eax;
   u32 vector;
   u32 err;
   u32 eip, cs, eflags;

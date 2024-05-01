@@ -39,7 +39,7 @@ const char *exception_messages[] = {
   "Reserved" // 0x1f
 };
 
-__attribute__((interrupt)) void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
+__attribute__((noreturn)) void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
   cprintf(0x70, 
           "\nCaught an interrupt!!\n"
           "iret ss %x iret esp %x\n"
@@ -54,7 +54,7 @@ __attribute__((interrupt)) void interrupt_handler_generic(x86_extended_interrupt
   asm volatile ("hlt");
 } 
 
-/* __attribute__((interrupt)) */ void interrupt_handler_err(x86_extended_interrupt_frame_t *iframe) {
+__attribute__((noreturn)) void interrupt_handler_err(x86_extended_interrupt_frame_t *iframe) {
   cprintf(0x40,
           "\nCaught an interrupt!!\n"
           "iret ss %x iret esp %x\n"
@@ -69,3 +69,15 @@ __attribute__((interrupt)) void interrupt_handler_generic(x86_extended_interrupt
   asm volatile ("hlt");
 } 
 
+__attribute__((noreturn)) void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
+  printf("Caught an IRQ #%u\n", iframe->vector);
+}
+
+void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {
+  cprintf(0x4f,
+          "Caught an interrupt!\n"
+          "Err %x Vec %x EFlags %x CS %x EIP %x\n",
+          iframe->err, iframe->vector, iframe->eflags, iframe->cs, iframe->eip
+  );
+  asm volatile ("hlt");
+}
