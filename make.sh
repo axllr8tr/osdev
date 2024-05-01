@@ -19,7 +19,7 @@ LD_EXEC=$GCC_EXEC
 QEMU_EXEC="qemu-system-i386"
 COMMON_ARGS="-lgcc"
 ASM_ARGS=""
-GCC_ARGS="-ffreestanding -O0 -Wall -Wextra -fno-exceptions -I $ROOT_DIR/include -I $ROOT_DIR -std=gnu11 -nostdlib -mgeneral-regs-only" # bad
+GCC_ARGS="-ffreestanding -O0 -Wall -Wextra -fno-exceptions -I $ROOT_DIR/include -I $ROOT_DIR -std=gnu11 -nostdlib"
 GPP_ARGS="-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -I $ROOT_DIR/include -I $ROOT_DIR -std=gnu++11 -nostdlib"
 LD_ARGS="-T $LD_SCRIPT -o $OUT_FILE -ffreestanding -O0 -nostdlib -fno-use-linker-plugin -fpermissive"
 QEMU_ARGS="-kernel $OUT_FILE"

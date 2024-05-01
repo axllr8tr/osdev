@@ -4,6 +4,8 @@
 #include "../baseio/printf.h"
 #include "../utils/panic.h"
 #include "../utils/io_ports.h"
+#include "../input/kbd.h"
+#include "../video/video.h"
 
 const char *exception_messages[] = {
   "Division by zero", // 0x00
@@ -41,29 +43,42 @@ const char *exception_messages[] = {
 };
 
 void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
-  printf("WARNING: caught an interrupt v=%x e=%x\n", iframe->vector, iframe->err);
-  
-} 
-
-void interrupt_handler_err(x86_extended_interrupt_frame_t *iframe) {
-  cprintf(0x40,
-          "\nCaught an interrupt!!\n"
-          "iret ss %x iret esp %x\n"
-          "eflags %x cs %x eip %x\n"
-          "err %x vector %x\n"
-          "eax %x ecx %x edx %x ebx %x\n"
-          "esp %x ebp %x edi %x esi %x\n"
-          "ds %x es %x fs %x gs %x\n"
-          "%s\n",
-          iframe->iret_ss, iframe->iret_esp, iframe->eflags, iframe->cs, iframe->eip, iframe->err, iframe->vector, iframe->eax, iframe->ecx, iframe->edx, iframe->ebx, iframe->esp, iframe->ebp, iframe->edi, iframe->esi, iframe->ds, iframe->es, iframe->fs, iframe->gs, exception_messages[iframe->vector]
-  );
-  asm volatile ("hlt");
+  switch (iframe->vector) { 
+    case 0x7f : {
+      break;
+    }
+    default : {
+      cprintf(0x6f, 
+          "Caught an interrupt v=%x e=%x\n"
+          "Cause: %s\n"
+          "The system will now be halted.", 
+          iframe->vector, iframe->err, exception_messages[iframe->vector]
+      );
+      while (true)
+        asm volatile ("hlt");
+    }
+  }  
 } 
 
 void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
-  printf("Caught an IRQ #%u\n", iframe->vector);
+  scode_t a;
+  keyevent_t b;
+  // printf("Caught an IRQ #%u\n", iframe->vector - 0x20);
+  switch (iframe->vector - 32) {
+    case 0: {
+      break;
+    }
+    case 1: {
+      receive_keystroke(&a);
+      keystroke_to_keyevent(&a, &b);
+      printf("%c", b.pchar * b.pressed);
+      break;
+    }
+  }
+  if (iframe->vector >= 40) {
+    outb(0x20, 0xa0);
+  }
   outb(0x20, 0x20);
-  outb(0xa0, 0x20);
 }
 
 void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {

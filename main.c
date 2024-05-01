@@ -26,7 +26,7 @@ int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
 
   vga_init_term();
 
-  asm volatile ("int $0x03");
+  asm volatile ("int $0x7f");
 
   scode_t a, b;
   keyevent_t a1, b1;
@@ -48,6 +48,8 @@ int kmain(size_t mboot_ptr, u32 mboot_mag, u32p esp) {
   //   a = b;
   //   a1 = b1;
   // } while (true);
-  
+  while (true) {
+    
+  }
   return 0;
 }

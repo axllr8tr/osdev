@@ -7,8 +7,7 @@
     cli
     push $0
     push $\no
-    ljmp $8, $1f 
-1:  jmp isr_generic_wrapper
+    jmp isr_generic_wrapper
 .endm
 
 .macro isr_error no=0
@@ -17,8 +16,7 @@
   _isr\no\():
     cli
     push $\no
-    ljmp $8, $1f 
-1:  jmp isr_generic_wrapper    
+    jmp isr_generic_wrapper    
 .endm
 
 .macro irq no=0, rno=32
@@ -26,9 +24,9 @@
   .global _irq\no
   _irq\no\():
     cli
+    push $0
     push $\rno
-    ljmp $8, $1f 
-1:  jmp irq_handler_wrapper
+    jmp irq_handler_wrapper
 .endm
 
 
@@ -97,6 +95,11 @@ isr_generic_wrapper:
   push %es
   push %fs
   push %gs 
+  mov $16, %eax 
+  mov %eax, %ds
+  mov %eax, %es
+  mov %eax, %fs
+  mov %eax, %gs
   push %esp
   call interrupt_handler_generic 
   pop %esp
@@ -113,7 +116,7 @@ isr_generic_wrapper:
   pop %ecx
   pop %eax
   add $8, %esp
-  iret
+  iretl
 
 .extern interrupt_handler_irq
 .global irq_handler_wrapper
@@ -129,7 +132,12 @@ irq_handler_wrapper:
   push %ds
   push %es
   push %fs
-  push %gs 
+  push %gs
+  mov $16, %eax 
+  mov %eax, %ds
+  mov %eax, %es
+  mov %eax, %fs
+  mov %eax, %gs
   push %esp
   call interrupt_handler_irq
   pop %esp
@@ -146,7 +154,7 @@ irq_handler_wrapper:
   pop %ecx
   pop %eax
   add $8, %esp
-  iret
+  iretl
  
 
 /*
