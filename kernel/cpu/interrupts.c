@@ -8,6 +8,8 @@
 #include "../video/video.h"
 #include "../system/syscalls.h"
 
+irq_handler_t irq_handlers[16] = {0};
+
 const char *exception_messages[] = {
   "Division by zero", // 0x00
   "Debug", // 0x01
@@ -45,7 +47,10 @@ const char *exception_messages[] = {
 
 void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
   switch (iframe->vector) { 
-    case 0x7f : execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx, iframe->esi, iframe->edi);
+    case 0x7f : {
+      execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx);
+      break;
+    }
     default : {
       cprintf(0x6f, 
           "Caught an interrupt v=%x e=%x\n"
@@ -60,23 +65,15 @@ void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
 } 
 
 void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
-  scode_t a;
-  keyevent_t b;
-  extern void keyboard_handler_userspace();
+  irq_handler_t local_irq_handler = irq_handlers[iframe->vector - 32];
   // printf("Caught an IRQ #%u\n", iframe->vector - 0x20);
-  switch (iframe->vector - 32) {
-    case 0: {
-      break;
-    }
-    case 1: {
-//      keyboard_handler_userspace();
-      break;
-    }
-  }
   if (iframe->vector >= 40) {
     outb(0x20, 0xa0);
   }
   outb(0x20, 0x20);
+  if (local_irq_handler) {
+    local_irq_handler(iframe);
+  }
 }
 
 void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {

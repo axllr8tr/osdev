@@ -3,22 +3,16 @@
 char prompt_command[1000];
 bool prompt = true;
 char kbd_char = '\0';
-bool kbd_delta0 = false;
-bool kbd_delta1 = true;
 
-void keyboard_handler_userspace() {
-
+void irq_handler_local_test(x86_extended_interrupt_frame_t *iframe) {
+  printf(".");
+  return;
 }
 
 void shell_prompt() {
-  char a;
-  cprintf(0x02, "$ ");
-  while (true) {
-    a = getch();
-    printf("%c", a);
-    if (a == 0x04) {
-      unsyscall(0, 0, 0, 0, 0, 0, 0);
-    }
+  unsyscall(1, 0, (u32)irq_handler_local_test, 0);
+  while(true) {
+
   }
 }
 

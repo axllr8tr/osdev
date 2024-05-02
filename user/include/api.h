@@ -5,7 +5,7 @@
 
 #include "defs.h"
 
-void unsyscall(u32, u32, u32, u32, u32, u32, u32);
+void unsyscall(u32, u32, u32, u32);
 void printf(char *fmt, ...);
 void cprintf(u8 col, char *fmt, ...);
 void putc(u8 chr, u8 col);

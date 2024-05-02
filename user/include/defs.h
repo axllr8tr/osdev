@@ -24,4 +24,16 @@ typedef unsigned int* u32p;
 typedef long long* i64p;
 typedef unsigned long long* u64p;
 
+
+typedef struct eiframe {
+  u32 gs, fs, es, ds;
+  u32 esi, edi, ebp, esp, ebx, edx, ecx, eax;
+  u32 vector;
+  u32 err;
+  u32 eip, cs, eflags;
+  u32 iret_esp, iret_ss;
+} __attribute__((packed)) x86_extended_interrupt_frame_t;
+
+typedef void (*irq_handler_t)(x86_extended_interrupt_frame_t*);
+
 #endif /* __DEFS_H */
