@@ -62,6 +62,7 @@ isr_generic 28
 isr_error   29
 isr_error   30
 isr_error   31
+isr_generic 126
 isr_generic 127
 irq         0   32
 irq         1   33

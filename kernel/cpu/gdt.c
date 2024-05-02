@@ -9,7 +9,7 @@ static void gdt_gen_entry(gdt_segment_descriptor_t *dest, u32 base, u32 limit, u
   dest->base_low = base & 0xffff;
   dest->base_mid = (base >> 16) & 0xff;
   dest->access = access;
-  dest->lim_high_flags = (flags << 4) | (limit >> 16) & 0xf;
+  dest->lim_high_flags = (flags << 4) | ((limit >> 16) & 0xf);
   dest->base_high = base >> 24;
 }
 

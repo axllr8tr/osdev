@@ -7,12 +7,17 @@ bool prompt = true;
 
 
 void irq_keyboard(x86_extended_interrupt_frame_t *iframe) {
+  iframe = iframe; // to silence GCC
   kbd_character = getch();
 }
 
 void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyboard
   if (chr < 0x20 && (chr != '\r' || chr != '\n' || chr != '\t' || chr != '\e' || chr != '\b')) { // noooo 
     cprintf(col, "^%c", chr + 0x40);
+    return;
+  }
+  if (chr >= 0x80) {
+    cprintf(col, "^[%c", chr - 0x40);
     return;
   }
   cprintf(col, "%c", chr);
@@ -38,6 +43,10 @@ void shell_prompt() {
         ucputc('\n');
         return;
       }
+      case '\x83' : {
+        asm volatile ("hlt");
+        break;
+      }
       case '\n' : {
         prompt_command[idx] = 0;
         kbd_character = 0;
@@ -52,7 +61,7 @@ void shell_prompt() {
       }
       case '\b' : {
         if (idx <= 0) break; // the `<` is here just in case
-        if (prompt_command[idx] < 0x20) {
+        if (prompt_command[idx] < 0x20 && prompt_command[idx] != 0) {
           putc(ASCII_CLF, 0);
           putc(ASCII_CLF, 0);
           prompt_command[idx--] = 0;
@@ -61,12 +70,26 @@ void shell_prompt() {
           putc(ASCII_CLF, 0);
           putc(ASCII_CLF, 0);
           break;
+        } else if ((u8)prompt_command[idx] >= 0x80u) {
+          prompt_command[idx--] = 0;
+          putc(ASCII_CLF, 0);
+          putc(ASCII_CLF, 0);
+          putc(ASCII_CLF, 0);
+          ucputc(' ');
+          ucputc(' ');
+          ucputc(' ');
+          putc(ASCII_CLF, 0);
+          putc(ASCII_CLF, 0);
+          putc(ASCII_CLF, 0);
+          break;
+        } else {
+          putc(ASCII_CLF, 0);
+          prompt_command[idx--] = 0;
+          ucputc(' ');
+          putc(ASCII_CLF, 0);
+          break;
         }
-        putc(ASCII_CLF, 0);
-        prompt_command[idx--] = 0;
-        ucputc(' ');
-        putc(ASCII_CLF, 0);
-        break;
+        break; // TODO: make it look less awful
       }
       default : {
         putc_wrapper(kbd_character, 0x07);

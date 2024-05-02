@@ -26,7 +26,6 @@ void receive_keystroke(scode_t *target) {
 }
 
 void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
-  keyevent_t ret;
   switch (keystroke->byte3 & 0x7f) {
     case KEY_SHIFT : {
       if(keystroke->released) {
@@ -48,7 +47,7 @@ void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
   keyevent->scancode = *keystroke;
   keyevent->locks = key_locks;
   keyevent->modifiers = key_flags;
-  keyevent->printable = ((keystroke->byte0 & 0x7f) < 0x58) && kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] >= 0x20 || kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] == '\n';
+  keyevent->printable = (((keystroke->byte0 & 0x7f) < 0x58) && kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] >= 0x20) || (kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] == '\n');
   keyevent->pchar = kbd_layout_us_qwerty[keystroke->byte0 & 0x7f]; // even more stupid
   keyevent->pressed = !keystroke->released; // nice
 }

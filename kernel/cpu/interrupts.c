@@ -47,6 +47,10 @@ const char *exception_messages[] = {
 
 void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
   switch (iframe->vector) { 
+    case 0x7e : {
+      hcf(iframe); 
+      break;
+    }
     case 0x7f : {
       execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx);
       break;
