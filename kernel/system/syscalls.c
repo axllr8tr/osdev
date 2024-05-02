@@ -2,6 +2,7 @@
 #include "syscalls.h"
 #include "../video/video.h"
 #include "../baseio/printf.h"
+#include "../utils/io_ports.h"
 #include "../cpu/interrupts.h"
 
 // inspired by klange/toaruos branch old_kernel_shell (not straight-up stolen I hope)
@@ -17,9 +18,18 @@ static void syscall_set_interrupt_handler(u32 irq, irq_handler_t handler) {
   irq_handlers[irq] = handler;
 }
 
+static void syscall_send_end_of_interrupt(u32 irq) {
+  if (irq >= 8) {
+    outb(0xa0, 0x20);
+  }
+  outb(0x20, 0x20);
+}
+
+
 u32p nonstandard_system_calls[] = {
   (u32p)syscall_hang,
-  (u32p)syscall_set_interrupt_handler
+  (u32p)syscall_set_interrupt_handler,
+  (u32p)syscall_send_end_of_interrupt
 };
 
 u32 execute_nonstandard_system_call(u32 eax, u32 ebx, u32 ecx, u32 edx) {
