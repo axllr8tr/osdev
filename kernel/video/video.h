@@ -10,5 +10,7 @@ extern void vga_fill_screen(u16);
 extern u16  vga_gen_entry(u8, u8);
 extern void vga_init_term(void);
 extern void putc(u8, u8);
+extern void ucputc(u8);
+
 
 #endif /* _VIDEO_H */

@@ -1,4 +1,7 @@
 #include "../include/defs.h"
+#include "../utils/io_ports.h"
+#include "../tty/escape.h"
+#include "../video/video.h"
 
 volatile u16p vga_textmode_mmio = (u16p)0xb8000;
 
@@ -9,6 +12,15 @@ u16 x = 0;
 u16 y = 0;
 
 u8 default_color = 0x07;
+
+void update_cursor_coords(u16 _x, u16 _y)
+{
+	u16 pos = _y * width + _x; 
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (u8)(pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (u8)((pos >> 8) & 0xFF));
+}
 
 u32 coord_to_offs(u16 _x, u16 _y) { 
   return _x + (_y * width);
@@ -37,9 +49,13 @@ void vga_fill_screen(u16 ent) {
 }
 
 void vga_init_term() {
-  vga_fill_screen(0);
+  vga_fill_screen(vga_gen_entry(0, 0x07));
   x = 0;
   y = 0;
+}
+
+void ucputc(u8 ch) {
+  putc(ch, vga_get_entry_at(x, y) >> 8); // slow, will implement double buffering later
 }
 
 void putc(u8 ch, u8 co) {
@@ -52,6 +68,22 @@ void putc(u8 ch, u8 co) {
         y = 0;
       break;
     }
+    case ASCII_CLF : {
+      if (x > 0) x--;
+      break;
+    }
+    case ASCII_CRT : {
+      if (x < width - 1) x++;
+      break;
+    }
+    case ASCII_CUP : {
+      if (y > 0) y--;
+      break;
+    }
+    case ASCII_CDN : {
+      if (y < height - 1) y++;
+      break;
+    }
     default : {
       vga_put_entry_at(vga_gen_entry(ch, co), x, y);
       if (x < (width - 1)) { x++; }
@@ -60,4 +92,5 @@ void putc(u8 ch, u8 co) {
       break;
     }
   }
+  update_cursor_coords(x, y);
 }

@@ -114,7 +114,7 @@ static bool is_letter(char chr) {
 
 // BADCODE: mess
 char handle_keyevent(keyevent_t *keyevent) {
-  if (keyevent->pressed && keyevent->printable && !keyevent->modifiers) {
+  if (keyevent->pressed && (keyevent->printable || keyevent->pchar == '\b') && !keyevent->modifiers) {
     return keyevent->pchar;
   }
   if (keyevent->pressed && keyevent->printable && keyevent->modifiers & MODIFIER_SHIFT && !(keyevent->modifiers & MODIFIER_CTRL)) {
