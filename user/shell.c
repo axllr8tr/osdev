@@ -1,10 +1,24 @@
 #include "include/api.h"
 #include "include/escape.h"
+#include "string/string.h"
 
 char prompt_command[1000];
+
 char kbd_character = 0;
 bool prompt = true;
 
+void memfillb(u8 val, u8p addr, size_t lim) {
+  for (size_t idx = 0; idx < lim; idx++) {
+    addr[idx] = val;
+  }
+} // to be made a syscall later!
+
+void execute_command(char *cmd) {
+  if(!strcmp(cmd, "halt")) {
+    asm volatile ("int $0x7e");
+  }
+  cprintf(0x0a, "\nYou entered `%s`", prompt_command);
+}
 
 void irq_keyboard(x86_extended_interrupt_frame_t *iframe) {
   iframe = iframe; // to silence GCC
@@ -24,18 +38,19 @@ void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyb
 }
 void shell_prompt() {
   u32 idx = 0;
+  memfillb(0, (u8p)&prompt_command[0], 1000); 
   cprintf(0x02, "$ ");
   while(true) {
     switch (kbd_character) {
-      case 0: {
+      case 0: { // no keyboard input yet
         continue;
       }
-      case '\x04' : {
+      case '\x04' : { // ^D
         kbd_character = 0;
         unsyscall(0, 0, 0, 0); // halt
         break;
       }
-      case '\x03' : {
+      case '\x03' : { // ^C
         kbd_character = 0;
         prompt_command[idx] = 0;
         kbd_character = 0;
@@ -43,8 +58,8 @@ void shell_prompt() {
         ucputc('\n');
         return;
       }
-      case '\x83' : {
-        asm volatile ("hlt");
+      case '\x83' : { // ^[C
+        asm volatile ("int $0x7e");
         break;
       }
       case '\n' : {
@@ -52,7 +67,7 @@ void shell_prompt() {
         kbd_character = 0;
         idx = 0;
         if(*prompt_command)
-          cprintf(0x0a, "\nString entered: %s", prompt_command);
+          execute_command(prompt_command);
         ucputc('\n');
         return;
       }
@@ -104,8 +119,8 @@ void shell_prompt() {
 }
 
 void shell_entry() {
-  printf("You are now in userspace (kinda)!\n"
-         "Think about just local APIs from now.\n"
+  printf("You are now in userspace!\n"
+         "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
   );
   unsyscall(1, 1, (u32)irq_keyboard, 0); // setup keyboard handler for IRQ1
   cprintf(0x0b, "Set up IRQ handler for keyboard on IRQ1\n");

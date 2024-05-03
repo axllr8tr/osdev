@@ -53,6 +53,7 @@ void idt_setup_exception_handlers() {
   idt_gen_entry(&global_idt[0x1f], (u32)_isr31, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x7e], (u32)_isr126, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x7f], (u32)_isr127, KSEG, IDT_INTERRUPT_GATE_ATTR);
+  // idt_gen_entry(&global_idt[0xff], (u32)_isr255, KSEG, IDT_INTERRUPT_GATE_ATTR); maybe, sometime
   idt_gen_entry(&global_idt[0x20], (u32)_irq0, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x21], (u32)_irq1, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x22], (u32)_irq2, KSEG, IDT_INTERRUPT_GATE_ATTR);

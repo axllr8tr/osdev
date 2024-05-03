@@ -38,6 +38,7 @@ extern void _isr31();
 extern void _isr32();
 extern void _isr126();
 extern void _isr127();
+// extern void _isr255();
 extern void _irq0();
 extern void _irq1();
 extern void _irq2();
