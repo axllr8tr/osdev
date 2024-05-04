@@ -44,37 +44,50 @@
 #define ASCII_DCS 0x90 // device control string (same as \eP)
 #define ASCII_OSC 0x9d // os command (same as \e])
 
-
-
 // ansi escape sequence prefixes
-#define ANSI_ESC_PRE_CSI "\e["
-#define ANSI_ESC_PRE_OSC "\e]"
-#define ANSI_ESC_PRE_DCS "\eP"
+#define ANSI_CSI '['
+#define ANSI_OSC ']'
+#define ANSI_DCS 'P'
 
 
-#define ANSI_ESC_ERASE_SCREEN_END   "0"
-#define ANSI_ESC_ERASE_SCREEN_START "1"
-#define ANSI_ESC_ERASE_SCREEN_ENTIRE   "2"
+#define ANSI_ED_END    0
+#define ANSI_ED_START  1
+#define ANSI_ED_ENTIRE 2
 
-#define ANSI_ESC_ERASE_LINE_END    "0"
-#define ANSI_ESC_ERASE_LINE_START  "1"
-#define ANSI_ESC_ERASE_LINE_ENTIRE "2"
+#define ANSI_EL_END    0
+#define ANSI_EL_START  1
+#define ANSI_EL_ENTIRE 2
+
+#define ANSI_SGR_RESET        0
+#define ANSI_SGR_INTENSITY    1
+#define ANSI_SGR_COLOR_FG(u)  30 + (u & 7)
+#define ANSI_SGR_COLOR_BG(u)  40 + (u & 7)
+#define ANSI_SGR_SWAP         7
+#define ANSI_SGR_HIDDEN       8
+#define ANSI_SGR_INTENSITY_BG 5 // aka blinking
+
+
+// for now, no support for civis and cnorm
 
 
 
 // ansi escape sequence suffixes
-#define ANSI_ESC_SUF_MOVE_CURSOR_UP         "A" // move cursor up
-#define ANSI_ESC_SUF_MOVE_CURSOR_DOWN       "B" // move cursor down
-#define ANSI_ESC_SUF_MOVE_CURSOR_RIGHT      "C" // move cursor right
-#define ANSI_ESC_SUF_MOVE_CURSOR_LEFT       "D" // move cursor left
-#define ANSI_ESC_SUF_MOVE_CURSOR_START_DOWN "E" // move cursor down and to the start of line
-#define ANSI_ESC_SUF_MOVE_CURSOR_START_UP   "F" // move cursor up and to the start of line
-#define ANSI_ESC_SUF_MOVE_CURSOR_COLUMN     "G" // move cursor along x axis
-#define ANSI_ESC_SUF_MOVE_CURSOR_ABS        "H" // move cursor to point
-#define ANSI_ESC_SUF_ERASE_SCREEN           "J" // erase screen
-#define ANSI_ESC_SUF_ERASE_LINE             "K" // erase line
-#define ANSI_ESC_SUF_MOVE_CURSOR_SCROLL_UP  "M" // move cursor up, scroll if possible
-#define ANSI_ESC_SUF_SET_GRAPHICS_OPTIONS   "m" // set graphics options/color
+#define ANSI_CUU 'A'
+#define ANSI_CUD 'B'
+#define ANSI_CUF 'C'
+#define ANSI_CUB 'D'
+#define ANSI_CNL 'E'
+#define ANSI_CPL 'F'
+#define ANSI_CHA 'G'
+#define ANSI_CUP 'H'
+#define ANSI_ED  'J'
+#define ANSI_EL  'K'
+#define ANSI_SU  'S'
+#define ANSI_SD  'T'
+#define ANSI_HVP 'f'
+#define ANSI_SGR 'm'
+#define ANSI_SCP 's'
+#define ANSI_RCP 'u'
 
 #endif /* _ESCAPE_H */
 

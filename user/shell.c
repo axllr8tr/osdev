@@ -60,6 +60,10 @@ void shell_prompt() {
         ucputc('\n');
         return;
       }
+      case '\x1a' : { // ^Z
+        prompt = false;
+        return;
+      }
       case '\x83' : { // ^[C
         asm volatile ("int $0x7e");
         break;
@@ -72,6 +76,10 @@ void shell_prompt() {
           : "g" ((u32)test_v8086)
           : // none
         );
+        break;
+      }
+      case '\x85' : { // ^[E
+        asm volatile ("int $0xfe");
         break;
       }
       case '\n' : {

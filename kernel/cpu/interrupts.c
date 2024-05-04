@@ -11,7 +11,20 @@
 
 irq_handler_t irq_handlers[16] = {0};
 
-const char *exception_messages[] = {
+void irq_handler_install(u8 idx, irq_handler_t handler) {
+  irq_handlers[idx] = handler;
+}
+
+void irq_handler_uninstall(u8 idx) {
+  irq_handlers[idx] = 0;
+}
+
+void null_handler(x86_extended_interrupt_frame_t *iframe) {
+  iframe = iframe;
+}
+
+
+const char *exception_messages[32] = {
   "Division by zero", // 0x00
   "Debug", // 0x01
   "Non-maskable interrupt", // 0x02
@@ -62,7 +75,7 @@ void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
       break;
     }
     case 0xff : {
-      printf("Requested virtual 8086 mode");
+      printf("Requested to execute code in virtual 8086 mode");
       run_inside_v8086(iframe->edi);
       break;
     }
@@ -86,9 +99,11 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
     outb(0x20, 0xa0);
   }
   outb(0x20, 0x20);
-  if (local_irq_handler) {
+  if (local_irq_handler) 
     local_irq_handler(iframe);
-  }
+  else
+    if (iframe->vector - 32 != 0)
+      cprintf(0x2a, "irq%u!", iframe->vector - 32);
 }
 
 void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {

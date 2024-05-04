@@ -14,6 +14,14 @@
 #include "cpu/gdt.h"
 #include "cpu/idt.h"
 #include "utils/io_ports.h"
+#include "cpu/interrupts.h"
+#include "ansi_test.h"
+
+u8 counter = 0;
+
+void left_userspace() {
+  cprintf(0x07, "?");
+}
 
 int kmain() {
   fix_pic();
@@ -27,11 +35,14 @@ int kmain() {
   vga_init_term();
 
 
-  extern void shell_entry();
-  shell_entry();
+  // extern void shell_entry();
+  // shell_entry();
+  
+  extern void tprint(const char *);
+  tprint("\e[32;7mHello!\e[40;37;0mWorld!");
+  // irq_handler_install(0, left_userspace);
 
   while (true) {
-    printf("you are now outside the userspace... ");
   }
   return 0;
 }

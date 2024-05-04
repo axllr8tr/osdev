@@ -78,14 +78,10 @@ typedef struct eiframe {
 } __attribute__((packed)) x86_extended_interrupt_frame_t;
 
 typedef void (*irq_handler_t)(x86_extended_interrupt_frame_t*);
-extern irq_handler_t irq_handlers[16];
 
-// entry points
-void interrupt_handler_generic_entry(); /* interrupts.S */
-void interrupt_handler_err_entry(); /* interrupts.S */
+// interrupt handler utils
+void irq_handler_install(u8 irq, irq_handler_t handler);
+void irq_handler_uninstall(u8 irq);
 
-// actual handlers
-void interrupt_handler_generic(x86_extended_interrupt_frame_t*);
-void interrupt_handler_err(x86_extended_interrupt_frame_t*);
 
 #endif /* _INTERRUPTS_H */
