@@ -7,7 +7,7 @@ bool char_matches_any(char chr, const char *str) {
   while (*str) {
     if (chr == *str)
       return true;
-    chr++;
+    str++; // idiot!!
   }
   return false;
 }
@@ -44,7 +44,9 @@ char *strcat(char *dest, const char *src) {
 
 char *strtok(char *str, const char *delim) { // strtok from https://gist.github.com/sushlala/3172c37f2947e96977b6a0682ec55a60
   static char *backup;
-  if(!str)
+  if (!str && backup)
+    str = backup;
+  if (!str)
     return NULL;
   for (;;) {
     if(char_matches_any(*str, delim)) {

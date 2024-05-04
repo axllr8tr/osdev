@@ -51,9 +51,10 @@ void idt_setup_exception_handlers() {
   idt_gen_entry(&global_idt[0x1d], (u32)_isr29, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x1e], (u32)_isr30, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x1f], (u32)_isr31, KSEG, IDT_INTERRUPT_GATE_ATTR);
-  idt_gen_entry(&global_idt[0x7e], (u32)_isr126, KSEG, IDT_INTERRUPT_GATE_ATTR);
-  idt_gen_entry(&global_idt[0x7f], (u32)_isr127, KSEG, IDT_INTERRUPT_GATE_ATTR);
-  // idt_gen_entry(&global_idt[0xff], (u32)_isr255, KSEG, IDT_INTERRUPT_GATE_ATTR); maybe, sometime
+  idt_gen_entry(&global_idt[0x7e], (u32)_isr126, KSEG, IDT_INTERRUPT_GATE_ATTR); // debug halt
+  idt_gen_entry(&global_idt[0x7f], (u32)_isr127, KSEG, IDT_INTERRUPT_GATE_ATTR); // non-standard syscalls
+  idt_gen_entry(&global_idt[0xfe], (u32)_isr254, KSEG, IDT_INTERRUPT_GATE_ATTR); // enter v8086 mode
+  idt_gen_entry(&global_idt[0xff], (u32)_isr255, KSEG, IDT_INTERRUPT_GATE_ATTR); // execute in v8086 mode
   idt_gen_entry(&global_idt[0x20], (u32)_irq0, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x21], (u32)_irq1, KSEG, IDT_INTERRUPT_GATE_ATTR);
   idt_gen_entry(&global_idt[0x22], (u32)_irq2, KSEG, IDT_INTERRUPT_GATE_ATTR);

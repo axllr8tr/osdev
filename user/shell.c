@@ -25,6 +25,8 @@ void irq_keyboard(x86_extended_interrupt_frame_t *iframe) {
   kbd_character = getch();
 }
 
+extern void test_v8086();
+
 void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyboard
   if (chr < 0x20 && (chr != '\r' || chr != '\n' || chr != '\t' || chr != '\e' || chr != '\b')) { // noooo 
     cprintf(col, "^%c", chr + 0x40);
@@ -60,6 +62,16 @@ void shell_prompt() {
       }
       case '\x83' : { // ^[C
         asm volatile ("int $0x7e");
+        break;
+      }
+      case '\x84' : { // ^[D
+        asm volatile (
+          "mov %0, %%edi\n"
+          "int $0xff"
+          : // none
+          : "g" ((u32)test_v8086)
+          : // none
+        );
         break;
       }
       case '\n' : {

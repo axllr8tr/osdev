@@ -29,17 +29,6 @@
     jmp irq_handler_wrapper
 .endm
 
-/*
-.macro isr_vm_spec no=0
-.byte \no
-  .global _irq\no
-  _irq\no\():
-    cli
-    push $0
-    push $\rno
-    jmp irq_handler_vrealmode
-.endm
-*/
 
 isr_generic 0
 isr_generic 1
@@ -75,7 +64,8 @@ isr_error   30
 isr_error   31
 isr_generic 126
 isr_generic 127
-/* isr_vm_spec 255 */
+isr_generic 254
+isr_generic 255
 
 irq         0   32
 irq         1   33
@@ -169,52 +159,3 @@ irq_handler_wrapper:
   pop %eax
   add $8, %esp
   iretl
- 
- /*
-.global irq_handler_vrealmode 
-irq_handler_vrealmode:
-  push %esp
-  call vrealmode_handle
-  iret
-*/
-
-/*
-.extern interrupt_handler_err
-.global interrupt_handler_err_entry
-interrupt_handler_err_entry:
-  push %eax
-  push %ecx
-  push %edx
-  push %ebx
-  push %esp
-  push %ebp
-  push %edi
-  push %esi
-  push %ds
-  push %es
-  push %fs
-  push %gs 
-  movl $0x10, %eax
-  movl %eax, %ds
-  movl %eax, %es
-  movl %eax, %fs
-  movl %eax, %gs
-  movl %esp, %edi
-  push %edi
-  call interrupt_handler_err
-  movl %eax, %esp
-  pop %gs
-  pop %fs
-  pop %es
-  pop %ds
-  pop %esi
-  pop %edi
-  pop %ebp
-  pop %esp
-  pop %ebx
-  pop %edx
-  pop %ecx
-  pop %eax
-  add $16, %esp
-  iret
-  */

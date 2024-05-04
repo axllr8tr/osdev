@@ -7,6 +7,7 @@
 #include "../input/kbd.h"
 #include "../video/video.h"
 #include "../system/syscalls.h"
+#include "v8086.h"
 
 irq_handler_t irq_handlers[16] = {0};
 
@@ -53,6 +54,16 @@ void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
     }
     case 0x7f : {
       execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx);
+      break;
+    }
+    case 0xfe : {
+      printf("Requested to enter virtual 8086 mode");
+      enter_v8086();
+      break;
+    }
+    case 0xff : {
+      printf("Requested virtual 8086 mode");
+      run_inside_v8086(iframe->edi);
       break;
     }
     default : {
