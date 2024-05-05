@@ -3,6 +3,7 @@
 #include "include/escape.h"
 #include "string/string.h"
 #include "string/conv.h"
+#include "ansi_test.h"
 
 #define command(u) if(!strcmp(argv[0], u)) // not too bad, eh?
 
@@ -54,6 +55,11 @@ int execute_command(int argc, char **argv) {
 
   command ("clear") {
     printf("\f");
+    return 0;
+  }
+  
+  command ("neofetch") {
+    printf((char *)noofetch);
     return 0;
   }
 

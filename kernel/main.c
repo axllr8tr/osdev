@@ -15,7 +15,6 @@
 #include "cpu/idt.h"
 #include "utils/io_ports.h"
 #include "cpu/interrupts.h"
-#include "ansi_test.h"
 
 u32 counter = 0;
 
@@ -30,7 +29,6 @@ int kmain() {
   vga_init_term();
   
   extern void tprint(const char *);
-  // tprint(i_use_arch_btw); // prints (almost) correctly
 
   cprintf(0x0f, "Welcome to thos!\n");
 

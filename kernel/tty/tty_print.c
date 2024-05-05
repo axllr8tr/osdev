@@ -25,7 +25,16 @@ u8 ansi_to_vga_colors[] = {
   1, // blue
   5, // magenta
   3, // cyan
-  7, // white
+  7, // lightgray
+  8, // darkgray
+  0x0c, // lightred 
+  0x0a, // lightgreen
+  0x0e, // lightyellow
+  9,    // lightblue
+  0x0d, // lightmagenta
+  0x0b, // lightcyan
+  0x0f, // white
+
 };
 
 void tprint_set_color(u8 col) {
@@ -94,12 +103,29 @@ static void handle_sgr(u32p sgr_params, size_t count) {
   for(size_t idx = 0; idx < count; idx++) {
     u32 param = sgr_params[idx];
     switch (param) {
+      case 38 : {
+        if ( 
+          !(sgr_params[idx + 1] != 5) &&
+          !(sgr_params[idx + 2] >= 16)
+        ) text_color = (text_color & 0xf0) | ansi_to_vga_colors[sgr_params[idx + 2] & 0xf];
+        idx += 2;
+        break;
+      }
+      case 48 : {
+        if ( 
+          !(sgr_params[idx + 1] != 5) &&
+          !(sgr_params[idx + 2] >= 16)
+        ) text_color = (ansi_to_vga_colors[sgr_params[idx + 2] & 0xf] << 4) | (text_color & 0x0f);
+        idx += 2;
+        break;
+      }
+
       case ANSI_SGR_INTENSITY : {
         text_color |= 0b1000;
         break;
       }
       case ANSI_SGR_INTENSITY_BG : { // aka blink
-        text_color |= 0b10000000;
+        if (!sgr_params[idx - 1] || sgr_params[idx - 1] != 38 || sgr_params[idx - 1] != 48) text_color |= 0b10000000;
         break;
       }
       case ANSI_SGR_RESET : {
@@ -111,7 +137,7 @@ static void handle_sgr(u32p sgr_params, size_t count) {
         break;
       }
       case 40 ... 47 : {
-        text_color = (((param - 40 - 1) & 0x07) << 4) | (ansi_to_vga_colors[param - 40] & 0x0f);
+        text_color = ((ansi_to_vga_colors[param - 40] & 0x07) << 4) | (text_color & 0x0f);
         break;
       }
       case ANSI_SGR_SWAP : {
@@ -124,12 +150,19 @@ static void handle_sgr(u32p sgr_params, size_t count) {
 
 size_t handle_csi_seq(const char *str) {
   memfill((u8p)work_buf, 0, 200);
+
   str++;
   const char *start = str;
   char *end = (char *)start;
   size_t idx = 0;
   size_t param_count = 0;
-  
+
+  for (idx = 0; idx < param_count; idx++) {
+    csi_params[idx] = 0;
+  }
+
+  idx = 0;
+
   for(; *end < 0x40; ++end); // any [a-zA-Z] character is definitely over 0x40
 
   // printf("Start = %x\n", (u32)start);
