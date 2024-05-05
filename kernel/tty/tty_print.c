@@ -49,21 +49,21 @@ static void cursor_move_a(u8 direction, u16 steps) {
       else
         y = 0;
     case ANSI_CUD:
-      if (y + steps <= height - 1)
-        y += steps;
-      else
+      if (y + steps >= height - 1)
         y = height - 1;
-    case ANSI_CUF:
-      if (x + steps <= width - 1)
-        x += steps;
       else
+        y += steps;
+    case ANSI_CUF:
+      if (x + steps >= width - 1)
         x = width - 1;
+      else
+        x += steps; 
     case ANSI_CUB:
       if (x >= steps)
         x -= steps;
       else
         x = 0;
-  }
+  } // not working yet
 }
 
 static void handle_sgr(u32p sgr_params, size_t count) {
@@ -111,32 +111,29 @@ size_t handle_csi_seq(const char *str) {
   
   for(; *end < 0x40; ++end); // any [a-zA-Z] character is definitely over 0x40
 
-  // printf("Start = %x\n", (u32)start);
-  // printf("End = %x\n", (u32)end);
+  printf("Start = %x\n", (u32)start);
+  printf("End = %x\n", (u32)end);
 
   for(; idx < ((size_t)end - (size_t)start) && idx < 199; work_buf[idx] = start[idx], idx++); // copy over
- //  printf("Work buffer = \"%s\"\n", work_buf);
+  printf("Work buffer = \"%s\"\n", work_buf);
  // 
- //  printf("End char = '%c'\n", *end);
+  printf("End char = '%c'\n", *end);
   if (*start == '?') goto rt; // screw this, private CSI sequence
                               // and i don't regret using `goto` any bit this time
 
   split_string(work_buf, ";", csi_params_pre, 32, &param_count);
-  // printf("String is split into %u parameters:\n", param_count);
+  printf("String is split into %u parameters:\n", param_count);
   
 
   // reduce, reuse, recycle!
   for (idx = 0; idx < param_count; idx++) {
-    // printf("%s -", csi_params_pre[idx]);
+    printf("%s -", csi_params_pre[idx]);
     csi_params[idx] = atoi_k(csi_params_pre[idx]);
-    // printf("> %u", csi_params[idx]);
+    printf("> %u", csi_params[idx]);
   }
 
   switch (*end) {
-    case ANSI_CUU : 
-    case ANSI_CUD : 
-    case ANSI_CUF :
-    case ANSI_CUB : {
+    case ANSI_CUU ... ANSI_CUB : { // for now
       cursor_move_a(*end, csi_params[0]);
       break;
     }
@@ -165,7 +162,7 @@ size_t handle_esc_seq(const char *str) {
       break;
     }
   }
-  return (size_t)end - (size_t)start + 1;
+  return (size_t)end - (size_t)start + 3;
 } // ret: length of escape sequence
 
 // better terminal print function

@@ -1,12 +1,20 @@
 #include "../include/defs.h"
 #include "../utils/io_ports.h"
+#include "../utils/mem.h"
 #include "../tty/escape.h"
 #include "../video/video.h"
 
-volatile u16p vga_textmode_mmio = (u16p)0xb8000;
 
-u16 width  = 80;
-u16 height = 25;
+#define VGA_WIDTH  80
+#define VGA_HEIGHT 25
+
+u16 width  = VGA_WIDTH;
+u16 height = VGA_HEIGHT;
+
+
+volatile u16p vga_textmode_mmio = (u16p)0xb8000;
+volatile u16  vga_textmode_buffer[VGA_HEIGHT * VGA_WIDTH];
+
 
 u16 x = 0;
 u16 y = 0;
@@ -27,10 +35,12 @@ u32 coord_to_offs(u16 _x, u16 _y) {
 }
 
 void vga_put_entry(u16 ent, u32 offs) {
+  vga_textmode_buffer[offs] = ent;
   vga_textmode_mmio[offs] = ent;
 }
 
 void vga_put_entry_at(u16 ent, u16 _x, u16 _y) {
+  vga_textmode_buffer[coord_to_offs(_x, _y)] = ent;
   vga_textmode_mmio[coord_to_offs(_x, _y)] = ent;
 }
 
@@ -39,7 +49,7 @@ u16 vga_gen_entry(u8 ch, u8 co) {
 }
 
 u16 vga_get_entry_at(u16 _x, u16 _y) {
-  return vga_textmode_mmio[coord_to_offs(_x, _y)];
+  return vga_textmode_buffer[coord_to_offs(_x, _y)];
 }
 
 void vga_fill_screen(u16 ent) {
@@ -55,17 +65,36 @@ void vga_init_term() {
 }
 
 void ucputc(u8 ch) {
-  putc(ch, vga_get_entry_at(x, y) >> 8); // slow, will implement double buffering later
+  putc(ch, vga_get_entry_at(x, y) >> 8);
+}
+
+void vga_flush_buffer() {
+  memcpyw((u16p)vga_textmode_mmio, (const u16p)vga_textmode_buffer, width * height);
+}
+
+void _loc_scrollback(u16 ht) {
+  if (ht < y) {
+    memcpyw((u16p)&vga_textmode_buffer[0], (const u16p)&vga_textmode_buffer[ht * width], (height - ht) * width * 2);
+    // memfillw((u16p)&vga_textmode_buffer[(height + ht) * width], 0xff00, (height - ht) * width);
+    memfillw((u16p)&vga_textmode_buffer[coord_to_offs(0, height - ht)], 0, width);
+    vga_flush_buffer();
+    y = height - ht;
+  }
+  else {
+    y = 0;
+    vga_init_term();
+  }
+  x = 0;
 }
 
 void putc(u8 ch, u8 co) {
   switch (ch) {
     case '\n' : {
       x = 0;
-      if (y < width - 1)
+      if (y < height - 1)
         y++;
       else
-        y = 0;
+        _loc_scrollback(1);
       break;
     }
     case ASCII_CLF : {
@@ -85,10 +114,23 @@ void putc(u8 ch, u8 co) {
       break;
     }
     default : {
-      vga_put_entry_at(vga_gen_entry(ch, co), x, y);
-      if (x < (width - 1)) { x++; }
-      else { x = 0; y++; }
-      if (y > (height - 1)) y = 0;
+      if (x < (width - 1)) {
+        vga_put_entry_at(vga_gen_entry(ch, co), x, y);
+        x++;
+        break;
+      }
+      else { 
+        x = 0; 
+      }
+
+      if (y > (height - 1)) {
+        x = 0;
+        _loc_scrollback(1);
+        vga_put_entry_at(vga_gen_entry(ch, co), x, y);
+      }
+      else {
+        vga_put_entry_at(vga_gen_entry(ch, co), x, y);
+      }
       break;
     }
   }
