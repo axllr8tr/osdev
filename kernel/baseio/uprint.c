@@ -2,6 +2,7 @@
 #include "../include/strings.h"
 #include "video.h" // putc(...) impl
 #include "uprint.h"
+#include "../tty/tty_print.h"
 
 void uprintc(char *string, u8 color) {
   while (*string) {
@@ -11,5 +12,5 @@ void uprintc(char *string, u8 color) {
 }
 
 void uprint(char *string) {
-  uprintc(string, default_color);
+  tprint(string);
 }

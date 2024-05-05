@@ -99,6 +99,7 @@ void putc(u8 ch, u8 co) {
     }
     case '\f' : {
       vga_init_term();
+      break;
     }
     case ASCII_CLF : {
       if (x > 0) x--;

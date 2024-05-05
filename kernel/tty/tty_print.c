@@ -1,4 +1,5 @@
 #include "../include/defs.h"
+#include "../utils/mem.h"
 #include "../baseio/printf.h"
 #include "../video/video.h"
 #include "../string/string.h"
@@ -27,6 +28,10 @@ u8 ansi_to_vga_colors[] = {
   7, // white
 };
 
+void tprint_set_color(u8 col) {
+  text_color = col;
+}
+
 static void split_string(char *src, const char *delim, char **destv, size_t destc, size_t *destc_real) { // origin unknown, taken from my old osdev project
   char *work_ptr = strtok_k(src, delim);
   u16 idx = 0;
@@ -41,28 +46,42 @@ static void split_string(char *src, const char *delim, char **destv, size_t dest
   *destc_real = count;
 }
 
-static void cursor_move_a(u8 direction, u16 steps) {
+static void cursor_move_a(u8 direction, u16 steps, size_t argc) {
+  if (!argc)
+    steps = 1;
   switch (direction) {
-    case ANSI_CUU: 
-      if (y >= steps)
+    case ANSI_CUU: {
+      // printf("\n%u steps up\n", steps);
+      if (y >= steps) 
         y -= steps;
       else
         y = 0;
-    case ANSI_CUD:
+      break;
+    }
+    case ANSI_CUD: {
+      // printf("\n%u steps down\n", steps);
       if (y + steps >= height - 1)
         y = height - 1;
       else
         y += steps;
-    case ANSI_CUF:
+      break;
+    }
+    case ANSI_CUF: {
+      // printf("\n%u steps right\n", steps);
       if (x + steps >= width - 1)
         x = width - 1;
       else
         x += steps; 
-    case ANSI_CUB:
+      break;
+    }
+    case ANSI_CUB: {
+      // printf("\n%u steps left\n", steps);
       if (x >= steps)
         x -= steps;
       else
         x = 0;
+      break;
+    }
   } // not working yet
 }
 
@@ -70,6 +89,7 @@ static void handle_sgr(u32p sgr_params, size_t count) {
   // printf("It is an SGR\n");
   if (count == 0) {
     text_color = default_color;
+    return;
   }
   for(size_t idx = 0; idx < count; idx++) {
     u32 param = sgr_params[idx];
@@ -103,6 +123,7 @@ static void handle_sgr(u32p sgr_params, size_t count) {
 }
 
 size_t handle_csi_seq(const char *str) {
+  memfill((u8p)work_buf, 0, 200);
   str++;
   const char *start = str;
   char *end = (char *)start;
@@ -111,30 +132,33 @@ size_t handle_csi_seq(const char *str) {
   
   for(; *end < 0x40; ++end); // any [a-zA-Z] character is definitely over 0x40
 
-  printf("Start = %x\n", (u32)start);
-  printf("End = %x\n", (u32)end);
+  // printf("Start = %x\n", (u32)start);
+  // printf("End = %x\n", (u32)end);
 
   for(; idx < ((size_t)end - (size_t)start) && idx < 199; work_buf[idx] = start[idx], idx++); // copy over
-  printf("Work buffer = \"%s\"\n", work_buf);
+  // printf("Work buffer = \"%s\"\n", work_buf);
  // 
-  printf("End char = '%c'\n", *end);
+  // printf("End char = '%c'\n", *end);
   if (*start == '?') goto rt; // screw this, private CSI sequence
                               // and i don't regret using `goto` any bit this time
 
   split_string(work_buf, ";", csi_params_pre, 32, &param_count);
-  printf("String is split into %u parameters:\n", param_count);
+  // printf("String is split into %u parameters:\n", param_count);
   
 
   // reduce, reuse, recycle!
   for (idx = 0; idx < param_count; idx++) {
-    printf("%s -", csi_params_pre[idx]);
+    // printf("%s -", csi_params_pre[idx]);
     csi_params[idx] = atoi_k(csi_params_pre[idx]);
-    printf("> %u", csi_params[idx]);
+    // printf("> %u", csi_params[idx]);
   }
 
   switch (*end) {
-    case ANSI_CUU ... ANSI_CUB : { // for now
-      cursor_move_a(*end, csi_params[0]);
+    case ANSI_CUU :
+    case ANSI_CUD :
+    case ANSI_CUF :
+    case ANSI_CUB : { // for now
+      cursor_move_a(*end, csi_params[0], param_count);
       break;
     }
     case ANSI_SGR : {
@@ -170,9 +194,12 @@ void tprint(const char *str) {
   while (str[str_index]) {
     if (str[str_index] == '\e')
       str_index += handle_esc_seq(&str[str_index]);
-    else
-      putc(str[str_index++], text_color);
-  } 
+    else {
+      putc(str[str_index], text_color);
+      str_index++;
+    }
+  }
+  str_index = 0;
 }
 
 

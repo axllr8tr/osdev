@@ -5,6 +5,7 @@
 #include "printf.h"
 #include "uprint.h"
 #include "../string/conv.h"
+#include "../tty/tty_print.h"
 
 #define SLIM_OR_LIM(U) (lim - ou_idx >= U) ? U : (lim - ou_idx)
 #define ISERR(U) (U == -1) ? true : false
@@ -104,7 +105,7 @@ void printf(char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   _vsnprintf(global_buf, 65536, fmt, ap);
-  uprintc(global_buf, default_color);
+  tprint(global_buf);
   va_end(ap);
 }
 
@@ -112,7 +113,8 @@ void cprintf(u8 col, char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   _vsnprintf(global_buf, 65536, fmt, ap);
-  uprintc(global_buf, col);
+  tprint_set_color(col);
+  tprint(global_buf);
   va_end(ap);
 }
 

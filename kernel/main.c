@@ -29,6 +29,9 @@ void left_userspace() {
 int kmain() {
   vga_init_term();
   
+  extern void tprint(const char *);
+  // tprint(i_use_arch_btw); // prints (almost) correctly
+
   cprintf(0x0f, "Welcome to thos!\n");
 
   fix_pic();

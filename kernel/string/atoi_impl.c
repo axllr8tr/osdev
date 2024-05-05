@@ -7,7 +7,7 @@ static u32 spow(u32 base, u32 power) {
   u32 ret = 1;
   if (power == 0)
     return 1;
-  if (power < 0)
+  if (power > 32) // ridiculous
     return 0;
   while (power--) {
     ret *= base;
@@ -30,18 +30,23 @@ int atoi_k(char *src) {
   // printf("Start ascii to int conversion of \"%s\"\n", src);
 
   char *start = src;
-  while(*start++ == ' '); // skip whitespaces
+  while(*start == ' ') {
+    start++;
+  }; // skip whitespaces
   // printf("Start = %x\n", (u32)start);
 
   // printf("deref Start = %x\n", *start);
 
   char *end = src;
-  while (*end++)
+  while (*end)
     if(!char_matches_any_k(*src, "0123456789abcdefABCDEFxX")) {
       break; // find end of number (possibly)
     }
+    else 
+      ++end;
+
   start -= 2;
-  end -= 2; // can't have that NUL
+  end -= 1; // can't have that NUL
 
   // printf("End = %x\n", (u32)end);
   // printf("deref End = %x\n", *end);
