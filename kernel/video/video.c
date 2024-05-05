@@ -76,7 +76,7 @@ void _loc_scrollback(u16 ht) {
   if (ht < y) {
     memcpyw((u16p)&vga_textmode_buffer[0], (const u16p)&vga_textmode_buffer[ht * width], (height - ht) * width * 2);
     // memfillw((u16p)&vga_textmode_buffer[(height + ht) * width], 0xff00, (height - ht) * width);
-    memfillw((u16p)&vga_textmode_buffer[coord_to_offs(0, height - ht)], 0, width);
+    memfillw((u16p)&vga_textmode_buffer[coord_to_offs(0, height - ht)], (default_color << 8) | 0, width);
     vga_flush_buffer();
     y = height - ht;
   }
@@ -96,6 +96,9 @@ void putc(u8 ch, u8 co) {
       else
         _loc_scrollback(1);
       break;
+    }
+    case '\f' : {
+      vga_init_term();
     }
     case ASCII_CLF : {
       if (x > 0) x--;
@@ -118,11 +121,11 @@ void putc(u8 ch, u8 co) {
         vga_put_entry_at(vga_gen_entry(ch, co), x, y);
         x++;
         break;
+      } else {
+        vga_put_entry_at(vga_gen_entry(ch, co), x, y);
+        y++;
+        x = 0;
       }
-      else { 
-        x = 0; 
-      }
-
       if (y > (height - 1)) {
         x = 0;
         _loc_scrollback(1);
@@ -131,7 +134,6 @@ void putc(u8 ch, u8 co) {
       else {
         vga_put_entry_at(vga_gen_entry(ch, co), x, y);
       }
-      break;
     }
   }
   update_cursor_coords(x, y);

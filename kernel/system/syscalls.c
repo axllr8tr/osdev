@@ -8,9 +8,9 @@
 // inspired by klange/toaruos branch old_kernel_shell (not straight-up stolen I hope)
 
 
-static void syscall_hang()  {
+static void syscall_halt()  {
   vga_init_term();
-  cprintf(0x2f, "Issued syscall 0 (hang)\n" "The system will now be halted.");
+  cprintf(0x2f, "Issued syscall 0\n" "The system will now be halted.");
   asm volatile ("hlt");
 }
 
@@ -24,7 +24,7 @@ static void syscall_irq_handler_uninstall(u32 irq) {
 
 
 const u32p nonstandard_system_calls[] = {
-  (u32p)syscall_hang,
+  (u32p)syscall_halt,
   (u32p)syscall_irq_handler_install,
   (u32p)syscall_irq_handler_uninstall
 };

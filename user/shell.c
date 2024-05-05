@@ -1,8 +1,16 @@
 #include "include/api.h"
+#include "include/defs.h"
 #include "include/escape.h"
 #include "string/string.h"
+#include "string/conv.h"
+
+#define command(u) if(!strcmp(argv[0], u)) // not too bad, eh?
+
 
 char prompt_command[1000];
+char *command_tokens[256];
+
+u8 command_ret = 0;
 
 char kbd_character = 0;
 bool prompt = true;
@@ -10,14 +18,47 @@ bool prompt = true;
 void memfillb(u8 val, u8p addr, size_t lim) {
   for (size_t idx = 0; idx < lim; idx++) {
     addr[idx] = val;
-  }
-} // to be made a syscall later!
+  } 
+}
 
-void execute_command(char *cmd) {
-  if(!strcmp(cmd, "halt")) {
+int execute_command(int argc, char **argv) {
+  command ("halt") {
     asm volatile ("int $0x7e");
   }
-  cprintf(0x0a, "\nYou entered `%s`", prompt_command);
+
+  command ("dec2hex") {
+    if (argc != 2)
+      return 1;
+    cprintf(0x0b, "%s -> %x\n", argv[1], atoi(argv[1]));
+    return 0;
+  }
+
+  command ("hang") {
+    while (true);
+  }
+
+  command ("syscall") {
+    if (argc != 5)
+      return 1;
+    unsyscall(atoi_b(argv[1], 8), atoi_b(argv[2], 8), atoi_b(argv[3], 8), atoi_b(argv[4], 8));
+    return 0;
+  }
+
+  command ("moni") {
+    extern void monitor();
+    extern void irq_keyboard(x86_extended_interrupt_frame_t *);
+    monitor();
+    unsyscall(1, 1, (u32)irq_keyboard, 0);
+    return 0;
+  }
+
+  command ("clear") {
+    printf("\f");
+    return 0;
+  }
+
+  cprintf(0x04, "No such command: `%s`\n", argv[0]);
+  return 127;
 }
 
 void irq_keyboard(x86_extended_interrupt_frame_t *iframe) {
@@ -39,9 +80,15 @@ void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyb
   cprintf(col, "%c", chr);
 }
 void shell_prompt() {
-  u32 idx = 0;
   memfillb(0, (u8p)&prompt_command[0], 1000); 
-  cprintf(0x02, "$ ");
+  u32 idx = 0;
+  if (!command_ret) { // BUG: for some reason the command_ret always becomes 0 each time the scrollback is initiated. why?
+    cprintf(0x02, "%u $ ", command_ret);
+  } else {
+    cprintf(0x04, "e!", command_ret);
+    cprintf(0x04, "%u ", command_ret);
+    cprintf(0x02, "$ ");
+  }
   while(true) {
     switch (kbd_character) {
       case 0: { // no keyboard input yet
@@ -57,7 +104,7 @@ void shell_prompt() {
         prompt_command[idx] = 0;
         kbd_character = 0;
         idx = 0;
-        ucputc('\n');
+        printf("\n");
         return;
       }
       case '\x1a' : { // ^Z
@@ -82,13 +129,19 @@ void shell_prompt() {
         asm volatile ("int $0xfe");
         break;
       }
+      case '\f' : { // ^L
+        printf("\f");
+        return;
+      }
       case '\n' : {
         prompt_command[idx] = 0;
         kbd_character = 0;
         idx = 0;
+        size_t argc = 0;
+        split_string_into_tokens(prompt_command, " ", command_tokens, 256, &argc);
+        printf("\n");
         if(*prompt_command)
-          execute_command(prompt_command);
-        ucputc('\n');
+          command_ret = execute_command(argc, command_tokens);
         return;
       }
       case '\xc0' : {
@@ -139,11 +192,11 @@ void shell_prompt() {
 }
 
 void shell_entry() {
-  printf("You are now in userspace!\n"
-         "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
+  cprintf(0x0b, "You are now in userspace!\n"
+                "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
   );
   unsyscall(1, 1, (u32)irq_keyboard, 0); // setup keyboard handler for IRQ1
-  cprintf(0x0b, "Set up IRQ handler for keyboard on IRQ1\n");
+  cprintf(0x0a, "[hw] Set up IRQ handler for keyboard on IRQ1\n");
 
   while (prompt)
     shell_prompt();

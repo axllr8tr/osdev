@@ -2,6 +2,21 @@
 // but they are temporary
 // pls dont sue me
 #include "../include/defs.h"
+#include "string.h"
+
+void split_string_into_tokens(char *src, const char *delim, char **destv, size_t destc, size_t *destc_real) {
+  char *work_ptr = strtok(src, delim);
+  u16 idx = 0;
+  u16 count = 0;
+
+  while (work_ptr != NULL && idx < destc) {
+    destv[idx] = work_ptr;
+    if(destv[idx]) count++;
+    idx++;
+    work_ptr = strtok(NULL, delim);
+  }
+  *destc_real = count;
+}
 
 bool char_matches_any(char chr, const char *str) {
   while (*str) {
@@ -13,7 +28,7 @@ bool char_matches_any(char chr, const char *str) {
 }
 
 int strcmp(const char *lval, const char *rval) {
-  for (; *lval == *rval && *lval++ && *rval++ ;);
+  for (; *lval == *rval && *lval && *rval ; lval++, rval++);
   return *(u8p)lval - *(u8p)rval;
 } 
 

@@ -20,22 +20,33 @@
 u32 counter = 0;
 
 void left_userspace() {
-  cprintf(0x07, "Tick %u\n", counter++);
+  cprintf(++counter & 0xf, ".");
   if (!(counter % 100)) {
-    cprintf(0x0e, "You are outside userspace.\n");
+    cprintf(0x0e, "You are outside userspace.");
   }
 }
 
 int kmain() {
+  vga_init_term();
+  
+  cprintf(0x0f, "Welcome to thos!\n");
+
   fix_pic();
+  cprintf(0x0a, "[cpu] Remapped PICs: m -> 0x20, s -> 0x28\n");
+
   asm volatile ("cli");
+  cprintf(0x0a, "[cpu] Interrupts disabled\n");
+
   gdt_setup_flat();
   gdt_deploy_flat();
+  cprintf(0x0a, "[cpu] GDT installed\n");
   idt_setup_exception_handlers();
   idt_deploy();
-  asm volatile ("sti");
+  cprintf(0x0a, "[cpu] IDT installed\n");
 
-  vga_init_term();
+  asm volatile ("sti");
+  cprintf(0x0a, "[cpu] Interrupts enabled\n");
+
 
 
   extern void shell_entry();
