@@ -5,7 +5,8 @@
 #include "string/conv.h"
 #include "ansi_test.h"
 
-#define command(u) if(!strcmp(argv[0], u)) // not too bad, eh?
+#define initial_command(u) if(!strcmp(argv[0], u)) 
+#define command(u)  else if(!strcmp(argv[0], u)) // not too bad, eh?
 
 
 char prompt_command[1000];
@@ -16,6 +17,12 @@ u8 command_ret = 0;
 char kbd_character = 0;
 bool prompt = true;
 
+u32 pit_ticks = 0;
+
+void fetch() {
+  printf((char *)noofetch, pit_ticks);
+}
+
 void memfillb(u8 val, u8p addr, size_t lim) {
   for (size_t idx = 0; idx < lim; idx++) {
     addr[idx] = val;
@@ -23,7 +30,7 @@ void memfillb(u8 val, u8p addr, size_t lim) {
 }
 
 int execute_command(int argc, char **argv) {
-  command ("halt") {
+  initial_command ("halt") {
     asm volatile ("int $0x7e");
   }
 
@@ -39,9 +46,11 @@ int execute_command(int argc, char **argv) {
   }
 
   command ("syscall") {
-    if (argc != 5)
-      return 1;
-    unsyscall(atoi_b(argv[1], 8), atoi_b(argv[2], 8), atoi_b(argv[3], 8), atoi_b(argv[4], 8));
+    if (argc != 5) {
+      printf("Usage: `syscall [no, dec] [ebx, hex] [ecx, hex] [edx, hex]\n");
+      return 2;
+    }
+    unsyscall(atoi_b(argv[1], 10), atoi_b(argv[2], 16), atoi_b(argv[3], 16), atoi_b(argv[4], 16));
     return 0;
   }
 
@@ -57,9 +66,85 @@ int execute_command(int argc, char **argv) {
     printf("\f");
     return 0;
   }
-  
+
+  command ("peekb") {
+    if (argc != 2) {
+      printf("Usage: `peekb [addr, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    printf("%x: %x\n", addr, *(u8p)addr);
+    return 0;
+  }
+
+  command ("peekw") {
+    if (argc != 2) {
+      printf("Usage: `peekw [addr, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    printf("%x: %x\n", addr, *(u16p)addr);
+    return 0;
+  }
+ 
+  command ("peekl") {
+    if (argc != 2) {
+      printf("Usage: `peekb [addr, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    printf("%x: %x\n", addr, *(u32p)addr);
+    return 0;
+  }
+
+  command ("pokeb") {
+    if (argc != 3) {
+      printf("Usage: `pokeb [addr, hex] [val, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    u8 val = atoi_b(argv[2], 16);
+    *(u8p)addr = val;
+    return 0;
+  }
+  command ("pokew") {
+    if (argc != 3) {
+      printf("Usage: `pokew [addr, hex] [val, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    u16 val = atoi_b(argv[2], 16);
+    *(u16p)addr = val;
+    return 0;
+  }
+
+  command ("pokel") {
+    if (argc != 3) {
+      printf("Usage: `pokel [addr, hex] [val, hex]`\n");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    u32 val = atoi_b(argv[2], 16);
+    *(u32p)addr = val;
+    return 0;
+  }
+
+  command ("call") {
+    if (argc != 2) {
+      printf("Usage: `call [function addr, hex]`");
+      return 2;
+    }
+    u32 addr = atoi_b(argv[1], 16);
+    asm volatile (
+      "call *%0"
+      : // none
+      : "r" (addr)
+      : "eax"
+    );
+  }
+
   command ("neofetch") {
-    printf((char *)noofetch);
+    fetch();
     return 0;
   }
 
@@ -70,6 +155,10 @@ int execute_command(int argc, char **argv) {
 void irq_keyboard(x86_extended_interrupt_frame_t *iframe) {
   iframe = iframe; // to silence GCC
   kbd_character = getch();
+}
+
+void irq_pit() {
+  pit_ticks++;
 }
 
 extern void test_v8086();
@@ -201,8 +290,8 @@ void shell_entry() {
   cprintf(0x0b, "You are now in userspace!\n"
                 "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
   );
-  unsyscall(1, 1, (u32)irq_keyboard, 0); // setup keyboard handler for IRQ1
-  cprintf(0x0a, "[hw] Set up IRQ handler for keyboard on IRQ1\n");
+  unsyscall(1, 0, (u32)irq_pit, 0); // set up timer
+  unsyscall(1, 1, (u32)irq_keyboard, 0); // set up keyboard
 
   while (prompt)
     shell_prompt();

@@ -16,8 +16,8 @@ static u32 spow(u32 base, u32 power) {
 static u8 ctoi(char chr, u8 base) {
   u8 ret = 0;
   if (chr >= '0' && chr <= '9') ret = chr - '0';
-  if (chr >= 'A' && chr <= 'F') ret = chr - 'A';
-  if (chr >= 'a' && chr <= 'f') ret = chr - 'a';
+  if (chr >= 'A' && chr <= 'F') ret = 10 + chr - 'A';
+  if (chr >= 'a' && chr <= 'f') ret = 10 + chr - 'a';
   if (chr == 'x' || chr == 'X') ret = 0;
   if (ret > base - 1) return 0xff;
   return ret;
@@ -57,7 +57,7 @@ int atoi_b(char *src, u8 base) {
   int ret = 0;
   size_t idx  = 0;
   for(; end > start; --end) {
-    ret += ctoi(*end, 10) * spow(base, idx++);
+    ret += ctoi(*end, base) * spow(base, idx++);
   }
   if (is_negative) ret = 0 - ret;  
   return ret;
