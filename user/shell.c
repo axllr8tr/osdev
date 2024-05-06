@@ -129,6 +129,15 @@ int execute_command(int argc, char **argv) {
     return 0;
   }
 
+  command ("echo") {
+    for (size_t idx = 1; idx < argc; idx++) {
+      printf("%s", &prompt_command[5]); // alright
+    }
+    printf("\n");
+    return 0;
+  }
+
+
   command ("call") {
     if (argc != 2) {
       printf("Usage: `call [function addr, hex]`");
