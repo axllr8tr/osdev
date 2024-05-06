@@ -177,10 +177,9 @@ void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyb
 void shell_prompt() {
   memfillb(0, (u8p)&prompt_command[0], 1000); 
   u32 idx = 0;
-  if (!command_ret) { // BUG: for some reason the command_ret always becomes 0 each time the scrollback is initiated. why?
-    cprintf(0x02, "%u $ ", command_ret);
+  if (!command_ret) { 
+    cprintf(0x02, "$ ", command_ret);
   } else {
-    cprintf(0x04, "e!", command_ret);
     cprintf(0x04, "%u ", command_ret);
     cprintf(0x02, "$ ");
   }
