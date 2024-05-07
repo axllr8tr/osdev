@@ -29,7 +29,7 @@ void memfillb(u8 val, u8p addr, size_t lim) {
   } 
 }
 
-int execute_command(int argc, char **argv) {
+int execute_command(u32 argc, char **argv) {
   initial_command ("halt") {
     asm volatile ("int $0x7e");
   }
