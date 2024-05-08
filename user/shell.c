@@ -23,11 +23,26 @@ void fetch() {
   printf((char *)noofetch, pit_ticks);
 }
 
-void memfillb(u8 val, u8p addr, size_t lim) {
+void memsetb(u8p addr, u8 val, size_t lim) {
   for (size_t idx = 0; idx < lim; idx++) {
     addr[idx] = val;
   } 
 }
+
+void memsetw(u16p addr, u16 val, size_t lim) {
+  for (size_t idx = 0; idx < lim; idx++) {
+    addr[idx] = val;
+  } 
+}
+
+void memsetl(u32p addr, u32 val, size_t lim) {
+  for (size_t idx = 0; idx < lim; idx++) {
+    addr[idx] = val;
+  } 
+}
+
+
+
 
 int execute_command(u32 argc, char **argv) {
   initial_command ("halt") {
@@ -129,6 +144,48 @@ int execute_command(u32 argc, char **argv) {
     return 0;
   }
 
+  command ("memsetb") {
+    if (argc != 4) {
+      printf("Usage: `memsetb [addr, hex] [val, hex] [lim, hex]`\n");
+      return 2;
+    }
+
+    u8p addr = (u8p)atoi_b(argv[1], 16);
+    u8 val = atoi_b(argv[2], 16) & 0xff;
+    size_t lim = atoi_b(argv[3], 16);
+
+    memsetb(addr, val, lim);
+    return 0;
+  }
+
+  command ("memsetw") {
+    if (argc != 4) {
+      printf("Usage: `memsetw [addr, hex] [val, hex] [lim, hex]`\n");
+      return 2;
+    }
+
+    u16p addr = (u16p)atoi_b(argv[1], 16);
+    u16 val = atoi_b(argv[2], 16) & 0xffff;
+    size_t lim = atoi_b(argv[3], 16);
+
+    memsetw(addr, val, lim);
+    return 0;
+ }
+
+  command ("memsetl") {
+    if (argc != 4) {
+      printf("Usage: `memsetl [addr, hex] [val, hex] [lim, hex]`\n");
+      return 2;
+    }
+
+    u32p addr = (u32p)atoi_b(argv[1], 16);
+    u32 val = atoi_b(argv[2], 16) & 0xffffffff;
+    size_t lim = atoi_b(argv[3], 16);
+
+    memsetl(addr, val, lim);
+    return 0;
+  }
+
   command ("echo") {
     for (size_t idx = 1; idx < argc; idx++) {
       printf("%s", &prompt_command[5]); // alright
@@ -182,7 +239,7 @@ void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyb
   cprintf(col, "%c", chr);
 }
 void shell_prompt() {
-  memfillb(0, (u8p)&prompt_command[0], 1000); 
+  memsetb((u8p)&prompt_command[0], 0, 1000); 
   u32 idx = 0;
   if (!command_ret) { 
     cprintf(0x02, "$ ", command_ret);

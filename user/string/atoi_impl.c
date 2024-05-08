@@ -23,7 +23,7 @@ static u8 ctoi(char chr, u8 base) {
   return ret;
 }
 
-int atoi(char *src) {
+u32 atoi(char *src) {
   char *start = src;
   while(*start++ == ' '); // skip whitespaces
   char *end = src;
@@ -43,7 +43,7 @@ int atoi(char *src) {
   return ret;
 }
 
-int atoi_b(char *src, u8 base) {
+u32 atoi_b(char *src, u8 base) {
   char *start = src;
   while(*start++ == ' '); // skip whitespaces
   char *end = src;
