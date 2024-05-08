@@ -225,7 +225,7 @@ size_t handle_esc_seq(const char *str) {
 // better terminal print function
 void tprint(const char *str) {
   while (str[str_index]) {
-    if (str[str_index] == '\e')
+    if (str[str_index] == '\033')
       str_index += handle_esc_seq(&str[str_index]);
     else {
       putc(str[str_index], text_color);

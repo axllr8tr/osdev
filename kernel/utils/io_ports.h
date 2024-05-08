@@ -3,12 +3,38 @@
 
 #include "../include/defs.h"
 
-extern u8 inb(u16 port);
-extern u16 inw(u16 port);
-extern u32 inl(u16 port);
-extern void outb(u16 port, u8 data);
-extern void outw(u16 port, u16 data);
-extern void outl(u16 port, u32 data);
-extern void io_wait();
+static inline u8 inb(u16 port) { 
+  u8 _ret; 
+  asm volatile ("inb %1, %0" : "=a" (_ret) : "dN" (port));
+  return _ret;
+}
+
+static inline u16 inw(u16 port) { 
+  u16 _ret; 
+  asm volatile ("inw %1, %0" : "=a" (_ret) : "dN" (port));
+  return _ret;
+}
+
+static inline u32 inl(u16 port) { 
+  u32 _ret; 
+  asm volatile ("inl %%dx, %%eax" : "=a" (_ret) : "dN" (port));
+  return _ret;
+}
+
+static inline void outb(u16 port, u8 data) {
+  asm volatile ("outb %1, %0" : : "dN" (port), "a" (data));
+}
+
+static inline void outw(u16 port, u16 data) {
+  asm volatile ("outw %1, %0" : : "dN" (port), "a" (data));
+}
+
+static inline void outl(u16 port, u32 data) {
+  asm volatile ("outl %1, %0" : : "dN" (port), "a" (data));
+}
+
+static inline void io_wait(void) {
+  asm ("inb $0xff");
+}
 
 #endif /* __IO_PORTS_H */

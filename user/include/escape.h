@@ -30,7 +30,7 @@
 #define ASCII_CAN 0x18 // cancel
 #define ASCII_EM  0x19 // end of medium
 #define ASCII_SUB 0x1a // substitute
-#define ASCII_ESC 0x1b // escape ('\e', ^[)
+#define ASCII_ESC 0x1b // escape ('\033', ^[)
 #define ASCII_FS  0x1c // file separator
 #define ASCII_CRT 0x1c // (or cursor right)
 #define ASCII_GS  0x1d // group separator
@@ -40,16 +40,16 @@
 #define ASCII_US  0x1f // unit separator
 #define ASCII_CDN 0x1f // (or cursor down)
 #define ASCII_DEL 0x7f // delete
-#define ASCII_CSI 0x9b // control sequence introducer (same as \e[)
-#define ASCII_DCS 0x90 // device control string (same as \eP)
-#define ASCII_OSC 0x9d // os command (same as \e])
+#define ASCII_CSI 0x9b // control sequence introducer (same as \033[)
+#define ASCII_DCS 0x90 // device control string (same as \033P)
+#define ASCII_OSC 0x9d // os command (same as \033])
 
 
 
 // ansi escape sequence prefixes
-#define ANSI_ESC_PRE_CSI "\e["
-#define ANSI_ESC_PRE_OSC "\e]"
-#define ANSI_ESC_PRE_DCS "\eP"
+#define ANSI_ESC_PRE_CSI "\033["
+#define ANSI_ESC_PRE_OSC "\033]"
+#define ANSI_ESC_PRE_DCS "\033P"
 
 
 #define ANSI_ESC_ERASE_SCREEN_END   "0"

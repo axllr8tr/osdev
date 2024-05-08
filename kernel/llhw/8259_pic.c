@@ -30,6 +30,6 @@ void init_pic(u8 offs1, u8 offs2) {
   outb(PIC2_DATA, a2);
 }
 
-void fix_pic() { 
+void fix_pic(void) { 
   init_pic(0x20, 0x28); 
 }

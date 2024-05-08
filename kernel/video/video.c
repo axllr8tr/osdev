@@ -58,7 +58,7 @@ void vga_fill_screen(u16 ent) {
       vga_put_entry_at(ent, i, j);
 }
 
-void vga_init_term() {
+void vga_init_term(void) {
   vga_fill_screen(vga_gen_entry(0, 0x07));
   x = 0;
   y = 0;

@@ -22,6 +22,6 @@
 // stolen from https://wiki.osdev.org/PIC
 
 void init_pic(u8, u8);
-void fix_pic();
+void fix_pic(void);
 
 #endif /* _8259_PIC_H */

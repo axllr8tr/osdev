@@ -5,7 +5,7 @@
 #include "kbd.h"
 
 const char kbd_layout_us_qwerty[128] = {
-  0, '\e', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', // 0-f
+  0, '\033', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', // 0-f
   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0, 'a', 's', // 10-1f
   'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\', 'z', 'x', 'c', 'v', // 20-2f 
   'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ', 0, 0, 0, 0, 0, // 30-3f
@@ -113,7 +113,7 @@ static bool is_letter(char chr) {
 
 // BADCODE: mess
 char handle_keyevent(keyevent_t *keyevent) {
-  if (keyevent->pressed && (keyevent->printable || keyevent->pchar == '\b' || keyevent->pchar == '\e') && !keyevent->modifiers) {
+  if (keyevent->pressed && (keyevent->printable || keyevent->pchar == '\b' || keyevent->pchar == '\033') && !keyevent->modifiers) {
     return keyevent->pchar;
   }
   if (keyevent->pressed && keyevent->printable && keyevent->modifiers & MODIFIER_SHIFT && !(keyevent->modifiers & MODIFIER_CTRL)) {
@@ -126,7 +126,7 @@ char handle_keyevent(keyevent_t *keyevent) {
     return shift_character(keyevent->pchar) - 0x40; // Ctrl-c -> ^C -> \x03
   }
   if (keyevent->pressed && keyevent->modifiers & MODIFIER_CTRL && keyevent->modifiers & MODIFIER_SHIFT) {
-    return shift_character(keyevent->pchar) + 0x40; // Ctrl-Shift-c -> ^[C -> \eC -> \x83 
+    return shift_character(keyevent->pchar) + 0x40; // Ctrl-Shift-c -> ^[C -> \033C -> \x83 
   }
   return 0;
 }

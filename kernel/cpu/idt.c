@@ -16,7 +16,7 @@ static void idt_gen_entry(idt_gate_descriptor_t *idt, u32 offset, u16 ss, u8 att
   idt->offset_high = (offset >> 16) & 0xffff;
 }
 
-void idt_setup_exception_handlers() {
+void idt_setup_exception_handlers(void) {
   global_idt_pointer.base = (u32)global_idt;
   global_idt_pointer.limit = (sizeof(idt_gate_descriptor_t) * 256) - 1;
   idt_gen_entry(&global_idt[0], (u32)_isr0, KSEG, IDT_INTERRUPT_GATE_ATTR);

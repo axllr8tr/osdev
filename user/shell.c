@@ -170,10 +170,8 @@ void irq_pit() {
   pit_ticks++;
 }
 
-extern void test_v8086();
-
 void putc_wrapper(u8 chr, u8 col) { // only for characters inputted using a keyboard
-  if (chr < 0x20 && (chr != '\r' || chr != '\n' || chr != '\t' || chr != '\e' || chr != '\b')) { // noooo 
+  if (chr < 0x20 && (chr != '\r' || chr != '\n' || chr != '\t' || chr != '\033' || chr != '\b')) { // noooo 
     cprintf(col, "^%c", chr + 0x40);
     return;
   }
@@ -219,13 +217,6 @@ void shell_prompt() {
         break;
       }
       case '\x84' : { // ^[D
-        asm volatile (
-          "mov %0, %%edi\n"
-          "int $0xff"
-          : // none
-          : "g" ((u32)test_v8086)
-          : // none
-        );
         break;
       }
       case '\x85' : { // ^[E
@@ -294,7 +285,7 @@ void shell_prompt() {
   }
 }
 
-void shell_entry() {
+void shell_entry(void) {
   cprintf(0x0b, "You are now in userspace!\n"
                 "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
   );

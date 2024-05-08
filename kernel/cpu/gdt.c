@@ -13,7 +13,7 @@ static void gdt_gen_entry(gdt_segment_descriptor_t *dest, u32 base, u32 limit, u
   dest->base_high = base >> 24;
 }
 
-void gdt_setup_flat() {
+void gdt_setup_flat(void) {
   global_gdt_pointer.base = (u32)&global_gdt[0];
   global_gdt_pointer.limit = (sizeof(gdt_segment_descriptor_t) * 5) - 1;
   gdt_gen_entry(&global_gdt[0], 0, 0, 0, 0); // null descriptor

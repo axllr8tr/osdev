@@ -25,7 +25,7 @@ void left_userspace() {
   }
 }
 
-int kmain() {
+int kmain(void) {
   vga_init_term();
   
   extern void tprint(const char *);
@@ -50,16 +50,16 @@ int kmain() {
 
 
 
-  extern void shell_entry();
+  extern void shell_entry(void);
   shell_entry();
   
   // extern void tprint(const char *);
   // tprint(
-  //   "\e[32m\e[4CHello, world!\n"
-  //   "\e[32m\e[4CHello, world!\n"
-  //   "\e[32m\e[4CHello, world!\n"
-  //   "\e[32m\e[4CHello, world!\n"
-  //   "\e[32m\e[4CHello, world!\n"
+  //   "\033[32m\033[4CHello, world!\n"
+  //   "\033[32m\033[4CHello, world!\n"
+  //   "\033[32m\033[4CHello, world!\n"
+  //   "\033[32m\033[4CHello, world!\n"
+  //   "\033[32m\033[4CHello, world!\n"
   // );
 
   irq_handler_install(0, left_userspace);
