@@ -50,6 +50,8 @@ int kmain(void) {
 
   irq_handler_install(0, left_userspace);
   
+  kdebug_log(SOFTPANIC "nothing left to execute");
+
   while (true) {
 
   }

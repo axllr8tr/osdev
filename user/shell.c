@@ -186,8 +186,9 @@ int execute_command(u32 argc, char **argv) {
   }
 
   command ("echo") {
+    cprintf(0x0e, "warning: echo function is really broken as it discards extra spaces\033[0m\n");
     for (size_t idx = 1; idx < argc; idx++) {
-      printf("%s", &prompt_command[5]); // alright
+      printf("%s ", argv[idx]); // alright
     }
     printf("\n");
     return 0;
@@ -195,7 +196,7 @@ int execute_command(u32 argc, char **argv) {
 
   command ("call") {
     if (argc != 2) {
-      printf("Usage: `call [function addr, hex]`");
+      printf("Usage: `call [function addr, hex]`\n");
       return 2;
     }
     u32 addr = atoi_b(argv[1], 16);
@@ -214,7 +215,7 @@ int execute_command(u32 argc, char **argv) {
   
   command ("loglevel") {
     if (argc != 2) {
-      printf("Usage: `loglevel [1-9]`");
+      printf("Usage: `loglevel [1-9]`\n");
       return 2;
     }
     extern u8 min_loglevel;
