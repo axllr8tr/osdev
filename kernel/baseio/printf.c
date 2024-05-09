@@ -42,6 +42,12 @@ void k_vsnprintf(char *buf, size_t lim, const char *fmt, va_list ap) {
         fmt++;
         break;
       }
+
+      case 'i' : {
+        ou_idx += itoa_exbuf_s_k(buf + ou_idx, SLIM_OR_LIM(10), va_arg(ap, i32), 10, false);
+        fmt++;
+        break;
+      }
       
       case 'x' : {
         ou_idx += itoa_exbuf_k(buf + ou_idx, SLIM_OR_LIM(8), va_arg(ap, u32), 16, false);

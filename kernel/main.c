@@ -30,23 +30,15 @@ int kmain(void) {
   vga_init_term();
 
   fix_pic();
-  kcprintf(0x0a, "[cpu] Remapped PICs: m -> 0x20, s -> 0x28\n");
-
   asm volatile ("cli");
-  kcprintf(0x0a, "[cpu] Interrupts disabled\n");
-
   gdt_setup_flat();
   gdt_deploy_flat();
-  kcprintf(0x0a, "[cpu] GDT installed\n");
   idt_setup_exception_handlers();
   idt_deploy();
-  kcprintf(0x0a, "[cpu] IDT installed\n");
-
   asm volatile ("sti");
-  kcprintf(0x0a, "[cpu] Interrupts enabled\n");
-
   ksyscall_install_full();
 
+  kcprintf(0x0f, "Welcome to thos!\n");
 
   extern void shell_entry(void);
   shell_entry();
