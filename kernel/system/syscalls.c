@@ -67,7 +67,7 @@ int ksyscall(u32 eax, u32 ebx, u32 ecx, u32 edx) {
     "pop %%ebx\n"
     : "=a" (ret) : "r" (edx), "r" (ecx), "r" (ebx), "r" (desired_syscall)
   );
-  if (eax != 0) kdebug_log(DEBUG "syscall %u was called, returned %i", eax, ret); // else recursion occurs
+  if (eax != 0) kdebug_log(DEBUG "syscall %u was called, returned %i", eax, ret);
   return ret;
 }
 

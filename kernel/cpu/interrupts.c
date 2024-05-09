@@ -7,16 +7,19 @@
 #include "../input/kbd.h"
 #include "../video/video.h"
 #include "../system/syscalls.h"
+#include "../logging/log.h"
 #include "v8086.h"
 
 irq_handler_t irq_handlers[16] = {0};
 
 void irq_handler_install(u8 idx, irq_handler_t handler) {
   irq_handlers[idx] = handler;
+  kdebug_log(INFO "set up irq handler for irq%u", idx);
 }
 
 void irq_handler_uninstall(u8 idx) {
   irq_handlers[idx] = 0;
+  kdebug_log(INFO "uninstalled irq handler for irq%u", idx);
 }
 
 void null_handler(x86_extended_interrupt_frame_t *iframe) {
@@ -102,8 +105,9 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
   if (local_irq_handler) 
     local_irq_handler(iframe);
   else
-    if (iframe->vector - 32 != 0)
-      kcprintf(0x2a, "irq%u!", iframe->vector - 32);
+    if (iframe->vector - 32 != 0) {
+    kdebug_log(NOTICE "irq%u is not handled", iframe->vector - 32);
+  }
 }
 
 void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {

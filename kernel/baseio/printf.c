@@ -6,6 +6,7 @@
 #include "uprint.h"
 #include "../string/conv.h"
 #include "../system/syscalls.h"
+#include "../tty/tty_print.h"
 
 #define SLIM_OR_LIM(U) (lim - ou_idx >= U) ? U : (lim - ou_idx)
 #define ISERR(U) (U == -1) ? true : false
@@ -112,10 +113,23 @@ void kvprintf(const char *fmt, va_list ap) {
   ksyscall(0, 0, (u32)global_buf, 65536);
 }
 
+void kvprintf_c(const char *fmt, va_list ap) {
+  k_vsnprintf(global_buf, 65536, fmt, ap);
+  tprint(global_buf);
+}
+
+
 void kprintf(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   kvprintf(fmt, ap);
+  va_end(ap);
+}
+
+void kprintf_c(const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  kvprintf_c(fmt, ap);
   va_end(ap);
 }
 
@@ -139,23 +153,28 @@ static const u8 vga_to_ansi_offs[] = {
 };
 
 void kcvprintf(u8 col, const char *fmt, va_list ap) { // NOTE: compatibility purposes
-
-  // set fg
-  kprintf("\033[38;5;%um", vga_to_ansi_offs[col & 0xf]);
-
-  // set bg
-  kprintf("\033[48;5;%um", vga_to_ansi_offs[(col >> 4) & 0xf]);
-
-  // print like any other string
-  kvprintf(fmt, ap);
-
+  kprintf("\033[38;5;%um", vga_to_ansi_offs[col & 0xf]); // fg
+  kprintf("\033[48;5;%um", vga_to_ansi_offs[(col >> 4) & 0xf]); // bg
+  kvprintf(fmt, ap);  // print like any other string
 }
+
+void kcvprintf_c(u8 col, const char *fmt, va_list ap) { // NOTE: compatibility purposes
+  kprintf_c("\033[38;5;%um", vga_to_ansi_offs[col & 0xf]); // fg
+  kprintf_c("\033[48;5;%um", vga_to_ansi_offs[(col >> 4) & 0xf]); // bg
+  kvprintf_c(fmt, ap);  // print like any other string
+}
+
 void kcprintf(u8 col, const char *fmt, ...) { // NOTE: compatibility purposes
   va_list ap;
   va_start(ap, fmt);
-
   kcvprintf(col, fmt, ap);
+  va_end(ap);
+}
 
+void kcprintf_c(u8 col, const char *fmt, ...) { 
+  va_list ap;
+  va_start(ap, fmt);
+  kcvprintf_c(col, fmt, ap);
   va_end(ap);
 }
 

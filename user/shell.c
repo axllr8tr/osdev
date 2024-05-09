@@ -43,8 +43,6 @@ void memsetl(u32p addr, u32 val, size_t lim) {
 }
 
 
-
-
 int execute_command(u32 argc, char **argv) {
   initial_command ("halt") {
     asm volatile ("int $0x7e");
@@ -195,7 +193,6 @@ int execute_command(u32 argc, char **argv) {
     return 0;
   }
 
-
   command ("call") {
     if (argc != 2) {
       printf("Usage: `call [function addr, hex]`");
@@ -212,6 +209,16 @@ int execute_command(u32 argc, char **argv) {
 
   command ("neofetch") {
     fetch();
+    return 0;
+  }
+  
+  command ("loglevel") {
+    if (argc != 2) {
+      printf("Usage: `loglevel [1-9]`");
+      return 2;
+    }
+    extern u8 min_loglevel;
+    min_loglevel = atoi(argv[1]);
     return 0;
   }
 
