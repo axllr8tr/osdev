@@ -15,56 +15,46 @@
 #include "cpu/idt.h"
 #include "utils/io_ports.h"
 #include "cpu/interrupts.h"
+#include "system/syscalls.h"
 
 u32 counter = 0;
 
 void left_userspace() {
-  cprintf(++counter & 0xf, ".");
+  kcprintf(++counter & 0xf, ".");
   if (!(counter % 100)) {
-    cprintf(0x0e, "You are outside userspace.");
+    kcprintf(0x0e, "You are outside userspace.");
   }
 }
 
 int kmain(void) {
   vga_init_term();
-  
-  extern void tprint(const char *);
-
-  cprintf(0x0f, "Welcome to thos!\n");
 
   fix_pic();
-  cprintf(0x0a, "[cpu] Remapped PICs: m -> 0x20, s -> 0x28\n");
+  kcprintf(0x0a, "[cpu] Remapped PICs: m -> 0x20, s -> 0x28\n");
 
   asm volatile ("cli");
-  cprintf(0x0a, "[cpu] Interrupts disabled\n");
+  kcprintf(0x0a, "[cpu] Interrupts disabled\n");
 
   gdt_setup_flat();
   gdt_deploy_flat();
-  cprintf(0x0a, "[cpu] GDT installed\n");
+  kcprintf(0x0a, "[cpu] GDT installed\n");
   idt_setup_exception_handlers();
   idt_deploy();
-  cprintf(0x0a, "[cpu] IDT installed\n");
+  kcprintf(0x0a, "[cpu] IDT installed\n");
 
   asm volatile ("sti");
-  cprintf(0x0a, "[cpu] Interrupts enabled\n");
+  kcprintf(0x0a, "[cpu] Interrupts enabled\n");
 
+  ksyscall_install_full();
 
 
   extern void shell_entry(void);
   shell_entry();
-  
-  // extern void tprint(const char *);
-  // tprint(
-  //   "\033[32m\033[4CHello, world!\n"
-  //   "\033[32m\033[4CHello, world!\n"
-  //   "\033[32m\033[4CHello, world!\n"
-  //   "\033[32m\033[4CHello, world!\n"
-  //   "\033[32m\033[4CHello, world!\n"
-  // );
 
   irq_handler_install(0, left_userspace);
   
   while (true) {
+
   }
   return 0;
 }

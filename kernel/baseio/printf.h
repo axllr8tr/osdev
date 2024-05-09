@@ -3,9 +3,10 @@
 
 #include "../include/defs.h"
 
-extern void _vsnprintf(char *, size_t, const char *, va_list);
-extern void vsnprintf_(char *, size_t, const char *, ...);
-extern void printf(char *, ...);
-extern void cprintf(u8, char *, ...);
+extern void k_vsnprintf(char *, size_t, const char *, va_list);
+extern void kvsnprintf_(char *, size_t, const char *, ...);
+extern void kvprintf(const char *, va_list);
+extern void kprintf(const char *, ...);
+extern void kcprintf(u8, const char *, ...);
 
 #endif /* __PRINTF_H */

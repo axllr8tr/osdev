@@ -2,36 +2,61 @@
 #include "syscalls.h"
 #include "../video/video.h"
 #include "../baseio/printf.h"
+#include "../tty/tty_print.h"
 #include "../utils/io_ports.h"
 #include "../cpu/interrupts.h"
+#include "../logging/log.h"
 
-// inspired by klange/toaruos branch old_kernel_shell (not straight-up stolen I hope)
+volatile u32 syscall_amount = 0; // huh
 
+typedef int (*syscall_t)(); // requires a cast
 
-static void syscall_halt()  {
-  vga_init_term();
-  cprintf(0x2f, "Issued syscall 0\n" "The system will now be halted.");
-  asm volatile ("hlt");
+static int kwrite(int fd, const void *data, size_t limit) {
+  switch (fd) {
+    case 0 : { // stdout
+      tprint((const char *)data); // temporary
+      break;
+    }
+    case 1 : { // stderr
+      tprint("\033[31m"); // red text
+      tprint((const char *)data);
+      tprint("\033[0m"); // reset
+      break;
+    }
+    default : {
+      kdebug_log(ERROR "write: write to fd %i is not implemented", fd);
+    }
+  }
+  limit = limit;
+  return 0;
 }
 
-static void syscall_irq_handler_install(u32 irq, irq_handler_t handler) {
-  irq_handler_install(irq, handler);
+static int kinst_irq(u8 irq_no, const irq_handler_t handler) {
+  irq_handler_install(irq_no, handler);
+  return 0;
 }
 
-static void syscall_irq_handler_uninstall(u32 irq) {
-  irq_handler_uninstall(irq);
+syscall_t syscalls[255]; 
+
+static int ksyscall_install(syscall_t call, u32 idx) {
+  syscalls[idx] = call;
+  return 0;
 }
 
+int ksyscall_install_full() {
+  ksyscall_install(kwrite, syscall_amount++);
+  ksyscall_install((syscall_t)kinst_irq, syscall_amount++); // HACK: apparently func() is not just any number of args
+  kdebug_log(INFO "installed %u system calls", syscall_amount);
+  return 0;
+}
 
-const u32p nonstandard_system_calls[] = {
-  (u32p)syscall_halt,
-  (u32p)syscall_irq_handler_install,
-  (u32p)syscall_irq_handler_uninstall
-};
-
-u32 execute_nonstandard_system_call(u32 eax, u32 ebx, u32 ecx, u32 edx) {
-  u32p syscall_function = nonstandard_system_calls[eax];
-  u32 ret = 0x00;
+int ksyscall(u32 eax, u32 ebx, u32 ecx, u32 edx) {
+  syscall_t desired_syscall = syscalls[eax];
+  if (!desired_syscall) {
+    kdebug_log(ERROR "nonexistent syscall %u was called", eax);
+    return -1;
+  }
+  int ret = 0x00;
   asm volatile (
     "push %1\n"
     "push %2\n"
@@ -40,9 +65,9 @@ u32 execute_nonstandard_system_call(u32 eax, u32 ebx, u32 ecx, u32 edx) {
     "pop %%ebx\n"
     "pop %%ebx\n"
     "pop %%ebx\n"
-    : "=a" (ret) : "r" (edx), "r" (ecx), "r" (ebx), "r" (syscall_function)
+    : "=a" (ret) : "r" (edx), "r" (ecx), "r" (ebx), "r" (desired_syscall)
   );
-  ret = *syscall_function;
+  kdebug_log(DEBUG "syscall %u was called, returned %i", eax, ret);
   return ret;
 }
 

@@ -4,6 +4,7 @@
 #include "string/string.h"
 #include "string/conv.h"
 #include "ansi_test.h"
+#include "compat.h"
 
 #define initial_command(u) if(!strcmp(argv[0], u)) 
 #define command(u)  else if(!strcmp(argv[0], u)) // not too bad, eh?

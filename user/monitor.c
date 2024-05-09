@@ -9,8 +9,7 @@ void kbd_handler_monitor() {
 }
 
 void monitor(void) {
-  printf("stupid x86 monitor\n");
-  unsyscall(1, 1, (u32)kbd_handler_monitor, 0); // set up local keyboard irq
-  printf("will be done in the future!\n");
-  
+  kprintf("stupid x86 monitor\n");
+  ksyscall(1, 1, (u32)kbd_handler_monitor, 0); // set up local keyboard irq
+  kprintf("will be done in the future!\n");
 }

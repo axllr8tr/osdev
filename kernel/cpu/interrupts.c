@@ -66,21 +66,21 @@ void interrupt_handler_generic(x86_extended_interrupt_frame_t *iframe) {
       break;
     }
     case 0x7f : {
-      execute_nonstandard_system_call(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx);
+      ksyscall(iframe->eax, iframe->ebx, iframe->ecx, iframe->edx);
       break;
     }
     case 0xfe : {
-      printf("Requested to enter virtual 8086 mode");
+      kprintf("Requested to enter virtual 8086 mode");
       enter_v8086();
       break;
     }
     case 0xff : {
-      printf("Requested to execute code in virtual 8086 mode");
+      kprintf("Requested to execute code in virtual 8086 mode");
       run_inside_v8086(iframe->edi);
       break;
     }
     default : {
-      cprintf(0x6f, 
+      kcprintf(0x6f, 
           "Caught an interrupt v=%x e=%x\n"
           "Cause: %s\n"
           "The system will now be halted.", 
@@ -103,11 +103,11 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
     local_irq_handler(iframe);
   else
     if (iframe->vector - 32 != 0)
-      cprintf(0x2a, "irq%u!", iframe->vector - 32);
+      kcprintf(0x2a, "irq%u!", iframe->vector - 32);
 }
 
 void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {
-  cprintf(0x4f,
+  kcprintf(0x4f,
           "Caught an interrupt!\n"
           "Err %x Vec %x EFlags %x CS %x EIP %x\n",
           iframe->err, iframe->vector, iframe->eflags, iframe->cs, iframe->eip
