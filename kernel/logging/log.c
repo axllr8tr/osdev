@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 u8 last_msg_prio = PRIO_WARN; // assume last message was a warning if no loglevel was provided
-u8 min_loglevel = PRIO_INFO;
+u8 min_loglevel = PRIO_DEBUG;
 
 #define END_LOG "\033[0m\n"
 
@@ -21,56 +21,56 @@ void kdebug_log(const char *message, ...) {
 
   switch (last_msg_prio * (last_msg_prio >= min_loglevel)) {
     case PRIO_DEBUG : {
-      kprintf_c("\033[38;5;8m[kernel] debug: ");
+      kprintf_c("\033[38;5;8m[k] debug: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_INFO : {
-      kprintf_c("\033[38;5;12m[kernel] info: ");
+      kprintf_c("\033[38;5;12m[k] info: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_NOTICE : {
-      kprintf_c("\033[38;5;6m[kernel] notice: ");
+      kprintf_c("\033[38;5;6m[k] notice: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_WARN : {
-      kprintf_c("\033[1;33m[kernel] warning: ");
+      kprintf_c("\033[1;33m[k] warning: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_ERROR : {
-      kprintf_c("\033[38;5;9m[kernel] error: ");
+      kprintf_c("\033[38;5;9m[k] error: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_CRIT : {
-      kprintf_c("\033[38;5;1m[kernel] critical: ");
+      kprintf_c("\033[38;5;1m[k] critical: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_EMERG : {
-      kprintf_c("\033[38;5;1m[kernel] emergency: ");
+      kprintf_c("\033[38;5;1m[k] emergency: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
     }
 
     case PRIO_SPANIC : {
-      kprintf_c("\033[38;5;15m\033[48;5;1m[kernel] panic: ");
+      kprintf_c("\033[38;5;15m\033[48;5;1m[k] panic: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       while (true)

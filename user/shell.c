@@ -55,7 +55,7 @@ int execute_command(u32 argc, char **argv) {
     return 0;
   }
 
-  command ("hang") {
+  command ("stall") {
     while (true);
   }
 

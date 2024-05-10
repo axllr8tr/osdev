@@ -21,16 +21,18 @@
 u32 counter = 0;
 
 void left_userspace() {
-  kcprintf(++counter & 0xf, ".");
-  if (!(counter % 100)) {
-    kcprintf_c(0x0e, "You are outside userspace.");
-  }
+  counter++;
+  kcprintf(counter & 0xf, "%u ", counter);
 }
 
 int kmain(void) {
   vga_init_term();
 
   kcprintf_c(0x0f, "Welcome to thos!\n");
+
+  char cpuid_vendor[33] = {0};
+  cpuid_get_vendor(cpuid_vendor);
+  kdebug_log(INFO "CPUID vendor is %s", cpuid_vendor);
 
   fix_pic();
 

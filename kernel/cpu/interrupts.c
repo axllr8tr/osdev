@@ -14,7 +14,7 @@ irq_handler_t irq_handlers[16] = {0};
 
 void irq_handler_install(u8 idx, irq_handler_t handler) {
   irq_handlers[idx] = handler;
-  kdebug_log(INFO "set up irq handler for irq%u", idx);
+  kdebug_log(INFO "set up irq handler for irq%u at addr 0x%x", idx, (u32)handler);
 }
 
 void irq_handler_uninstall(u8 idx) {
@@ -108,13 +108,4 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
     if (iframe->vector - 32 != 0) {
     kdebug_log(NOTICE "irq%u is not handled", iframe->vector - 32);
   }
-}
-
-void interrupt_handler_simple(x86_simple_interrupt_frame_t *iframe) {
-  kcprintf(0x4f,
-          "Caught an interrupt!\n"
-          "Err %x Vec %x EFlags %x CS %x EIP %x\n",
-          iframe->err, iframe->vector, iframe->eflags, iframe->cs, iframe->eip
-  );
-  asm volatile ("hlt");
 }
