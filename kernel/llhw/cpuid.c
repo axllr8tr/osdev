@@ -26,3 +26,18 @@ void cpuid_get_vendor(char *dest) {
   } // genuine jank
   *dest = 0; // nul
 }
+
+void cpuid_get_brand_string(char *dest) {
+  u8 dest_pre[48];
+  u8 idx = 0;
+
+  cpuid_execute(0x80000002, (u32p)&dest_pre[0], (u32p)&dest_pre[4], (u32p)&dest_pre[8], (u32p)&dest_pre[12]);
+  cpuid_execute(0x80000003, (u32p)&dest_pre[16], (u32p)&dest_pre[20], (u32p)&dest_pre[24], (u32p)&dest_pre[28]);
+  cpuid_execute(0x80000004, (u32p)&dest_pre[32], (u32p)&dest_pre[36], (u32p)&dest_pre[40], (u32p)&dest_pre[44]);
+  
+  for (; idx < 48; idx++)
+    *dest++ = dest_pre[idx]; // authentic bad
+
+  *dest = 0; // nul
+}
+

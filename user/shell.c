@@ -206,6 +206,7 @@ int execute_command(u32 argc, char **argv) {
       : "r" (addr)
       : "eax"
     );
+    return 0;
   }
 
   command ("neofetch") {

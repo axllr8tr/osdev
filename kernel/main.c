@@ -31,8 +31,12 @@ int kmain(void) {
   kcprintf_c(0x0f, "Welcome to thos!\n");
 
   char cpuid_vendor[33] = {0};
+  char cpuid_brand_string[49] = {0};
+
   cpuid_get_vendor(cpuid_vendor);
+  cpuid_get_brand_string(cpuid_brand_string);
   kdebug_log(INFO "CPUID vendor is %s", cpuid_vendor);
+  kdebug_log(INFO "CPU is %s", cpuid_brand_string);
 
   fix_pic();
 
