@@ -6,5 +6,6 @@
 #include "../defs.h"
 
 #define DEFAULT_OUTPUT(u) puts(u) // will execute write(stdout, u, strlen(u)) syscall
+                                  // which is actually syscall(0, 0, u, strlen(u))
 
-// to be implemented later //
+

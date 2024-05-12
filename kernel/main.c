@@ -28,14 +28,14 @@ void left_userspace() {
 int kmain(void) {
   vga_init_term();
 
-  kcprintf_c(0x0f, "Welcome to thos!\n");
+  kdebug_log(INFO "Welcome to thos!");
 
   char cpuid_vendor[33] = {0};
   char cpuid_brand_string[49] = {0};
 
   cpuid_get_vendor(cpuid_vendor);
   cpuid_get_brand_string(cpuid_brand_string);
-  kdebug_log(INFO "CPUID vendor is %s", cpuid_vendor);
+  kdebug_log(INFO "CPU vendor is %s", cpuid_vendor);
   kdebug_log(INFO "CPU is %s", cpuid_brand_string);
 
   fix_pic();
@@ -43,10 +43,10 @@ int kmain(void) {
   asm volatile ("cli");
   gdt_setup_flat();
   gdt_deploy_flat();
-  kdebug_log(INFO "installed GDT");
+  kdebug_log(DEBUG "installed GDT");
   idt_setup_exception_handlers();
   idt_deploy();
-  kdebug_log(INFO "installed IDT");
+  kdebug_log(DEBUG "installed IDT");
   asm volatile ("sti");
 
   ksyscall_install_full();
@@ -56,7 +56,7 @@ int kmain(void) {
 
   irq_handler_install(0, left_userspace);
   
-  kdebug_log(SOFTPANIC "nothing left to execute");
+  kdebug_log(SOFTPANIC "exited userspace");
 
   while (true) {
 

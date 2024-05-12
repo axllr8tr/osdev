@@ -14,12 +14,12 @@ irq_handler_t irq_handlers[16] = {0};
 
 void irq_handler_install(u8 idx, irq_handler_t handler) {
   irq_handlers[idx] = handler;
-  kdebug_log(INFO "set up irq handler for irq%u at addr 0x%x", idx, (u32)handler);
+  kdebug_log(DEBUG "set up irq handler for irq%u at addr 0x%x", idx, (u32)handler);
 }
 
 void irq_handler_uninstall(u8 idx) {
   irq_handlers[idx] = 0;
-  kdebug_log(INFO "uninstalled irq handler for irq%u", idx);
+  kdebug_log(DEBUG "uninstalled irq handler for irq%u", idx);
 }
 
 void null_handler(x86_extended_interrupt_frame_t *iframe) {
@@ -106,6 +106,6 @@ void interrupt_handler_irq(x86_extended_interrupt_frame_t *iframe) {
     local_irq_handler(iframe);
   else
     if (iframe->vector - 32 != 0) {
-    kdebug_log(NOTICE "irq%u is not handled", iframe->vector - 32);
+    kdebug_log(DEBUG "irq%u is not handled", iframe->vector - 32);
   }
 }

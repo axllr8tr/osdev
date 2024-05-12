@@ -354,7 +354,7 @@ void shell_prompt() {
 
 void shell_entry(void) {
   cprintf(0x0b, "You are now in userspace!\n"
-                "(Try to) think about just local APIs from now on.\n" // not "just local APIs" yet
+                "Just think of local APIs from now on.\n" // it's getting closer
   );
   unsyscall(1, 0, (u32)irq_pit, 0); // set up timer
   unsyscall(1, 1, (u32)irq_keyboard, 0); // set up keyboard

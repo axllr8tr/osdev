@@ -46,7 +46,7 @@ static int ksyscall_install(syscall_t call, u32 idx) {
 int ksyscall_install_full() {
   ksyscall_install(kwrite, syscall_amount++);
   ksyscall_install((syscall_t)kinst_irq, syscall_amount++); // HACK: apparently func() is not just any number of args
-  kdebug_log(INFO "installed %u system calls", syscall_amount);
+  kdebug_log(DEBUG "installed %u system calls", syscall_amount);
   return 0;
 }
 

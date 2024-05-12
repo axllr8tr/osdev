@@ -30,7 +30,7 @@ void init_pic(u8 offs1, u8 offs2) {
 
   outb(PIC1_DATA, a1);
   outb(PIC2_DATA, a2);
-  kdebug_log(INFO "remapped PICs: master offs 0x%x, slave offs 0x%x", offs1, offs2);
+  kdebug_log(DEBUG "remapped PICs: master offs 0x%x, slave offs 0x%x", offs1, offs2);
 }
 
 void fix_pic(void) { 

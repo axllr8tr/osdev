@@ -28,7 +28,7 @@ void kdebug_log(const char *message, ...) {
     }
 
     case PRIO_INFO : {
-      kprintf_c("\033[38;5;12mkernel: info: ");
+      kprintf_c("\033[38;5;7mkernel: info: ");
       kvprintf_c((char *)message, ap);
       kprintf_c(END_LOG);
       break;
