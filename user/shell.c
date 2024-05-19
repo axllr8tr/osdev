@@ -359,11 +359,11 @@ void shell_entry(void) {
   unsyscall(1, 0, (u32)irq_pit, 0); // set up timer
   unsyscall(1, 1, (u32)irq_keyboard, 0); // set up keyboard
 
-  extern unsigned long strtoul(const char *, char **, int base);
-
-  const char *ffff = "10";
-  char *end = NULL;
-  printf("%u\n", strtoul(ffff, &end, 16));
+  // extern unsigned long strtoul(const char *, char **, int base);
+  //
+  // const char *ffff = "ffff";
+  // char *end = NULL;
+  // printf("%x\n", strtoul(ffff, &end, 16));
 
   while (prompt)
     shell_prompt();

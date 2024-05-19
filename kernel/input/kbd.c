@@ -2,7 +2,10 @@
 #include "../utils/io_ports.h"
 #include "../baseio/printf.h"
 #include "../video/video.h"
+#include "../logging/log.h"
 #include "kbd.h"
+
+// #define EXTREME_KEYBOARD_DEBUGGING // <-- used for troubleshooting kbd on real hardware
 
 const char kbd_layout_us_qwerty[128] = {
   0, '\033', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t', // 0-f
@@ -22,11 +25,14 @@ void receive_keystroke(scode_t *target) {
   u32 scancode = inl(0x60); // ps/2 only
   target->rawScancode = scancode;
   target->extended = (scancode & 0xff) == 0xe0;
-  target->released = (target->byte3 & 0x80) && scancode != 0xe0;
+  target->released = (target->byte0 & 0x80) && scancode != 0xe0;
+  #ifdef EXTREME_KEYBOARD_DEBUGGING
+    kdebug_log(DEBUG "kbd: got keystroke: scancode %x", scancode);
+  #endif
 }
 
 void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
-  switch (keystroke->byte3 & 0x7f) {
+  switch (keystroke->byte0 & 0x7f) {
     case KEY_SHIFT : {
       if(keystroke->released) {
         key_flags &= ~MODIFIER_SHIFT;
@@ -50,6 +56,10 @@ void keystroke_to_keyevent(scode_t *keystroke, keyevent_t *keyevent) {
   keyevent->printable = (((keystroke->byte0 & 0x7f) < 0x58) && kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] >= 0x20) || (kbd_layout_us_qwerty[keystroke->byte0 & 0x7f] == '\n');
   keyevent->pchar = kbd_layout_us_qwerty[keystroke->byte0 & 0x7f]; // even more stupid
   keyevent->pressed = !keystroke->released; // nice
+  #ifdef EXTREME_KEYBOARD_DEBUGGING
+    kdebug_log(DEBUG "kbd: %x %x %x %x", keystroke->byte0, keystroke->byte1, keystroke->byte2, keystroke->byte3);
+  #endif
+
 }
 
 char shift_character(char chr) {

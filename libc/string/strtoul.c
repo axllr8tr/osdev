@@ -1,7 +1,9 @@
-// strtoul(const char *) implementation
+// strtoul(const char *, char **, int) implementation
 // returns an u32 (aka unsigned long)
 
 #include "../defs.h"
+
+extern void kprintf(const char *, ...);
 
 static u32 powd(u32 num, u32 power) {
   if (power == 0)
@@ -22,27 +24,31 @@ static u8 char_to_u8(char chr) {
 }
 
 unsigned long strtoul(const char *start, char **end, int base) {
-  u32 res = 0;
+  unsigned long res = 0;
   char *start_num = (char *)start;
   char *end_num;
   
-  while (*start_num != 0x20) start_num++;
+  while (*start_num == 0x20) start_num++;
 
   end_num = start_num;
   while (*end_num) { // UNIMPLEMENTED: optional prefixes (0xbaca, 0o777, 0b111000111)
-    if (char_to_u8(*end_num) >= (base - 1)) {
+    if (char_to_u8(*end_num) <= (base - 1)) {
       end_num++;
       continue;
     }
     else {
-      --end_num;
+      end_num--;
       break;
     }
   }
   *end = end_num;
 
-  for (; start_num < end_num; start_num++)
+  kprintf("st = %x end = %x", start_num, end_num);
+
+
+  for (; start_num < end_num; start_num++) {
     res += char_to_u8(*start_num) * powd(base, end_num - start_num); // mindblowing
+  }
 
   return res;
 }
