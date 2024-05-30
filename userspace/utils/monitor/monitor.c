@@ -1,4 +1,4 @@
-#include "include/api.h"
+#include "../common/include/api.h"
 
 static char curchar = 0;
 u32 last_location = 0, store = 0;

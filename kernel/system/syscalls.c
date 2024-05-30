@@ -11,15 +11,15 @@ volatile u32 syscall_amount = 0; // huh
 
 typedef int (*syscall_t)(); // requires a cast
 
-static int kwrite(int fd, const void *data, size_t limit) {
+static int kwrite(int fd, const char *data, size_t limit) {
   switch (fd) {
-    case 0 : { // stdout
-      tprint((const char *)data); // temporary
+    case 1 : { // stdout
+      tprint(data); // temporary
       break;
     }
-    case 1 : { // stderr
+    case 2 : { // stderr
       tprint("\033[31m"); // red text
-      tprint((const char *)data);
+      tprint(data);
       tprint("\033[0m"); // reset
       break;
     }

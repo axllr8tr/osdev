@@ -110,7 +110,7 @@ void kvsnprintf_(char *buf, size_t lim, const char *fmt, ...) {
 
 void kvprintf(const char *fmt, va_list ap) {
   k_vsnprintf(global_buf, 65536, fmt, ap);
-  ksyscall(0, 0, (u32)global_buf, 65536);
+  ksyscall(0, 1, (u32)global_buf, 65536);
 }
 
 void kvprintf_c(const char *fmt, va_list ap) {

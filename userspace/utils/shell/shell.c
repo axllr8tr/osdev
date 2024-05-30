@@ -1,10 +1,10 @@
-#include "include/api.h"
-#include "include/defs.h"
-#include "include/escape.h"
-#include "string/string.h"
-#include "string/conv.h"
+#include "../common/include/api.h"
+#include "../common/include/defs.h"
+#include "../common/include/escape.h"
+#include "../common/string/string.h"
+#include "../common/string/conv.h"
 #include "ansi_test.h"
-#include "compat.h"
+#include "../common/compat.h"
 
 #define initial_command(u) if(!strcmp(argv[0], u)) 
 #define command(u)  else if(!strcmp(argv[0], u)) // not too bad, eh?

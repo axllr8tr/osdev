@@ -4,6 +4,8 @@
 #include "cpuid.h"
 #include <cpuid.h>
 
+char cpuid_vendor_string[49] = {0};
+
 void cpuid_execute(u32 op, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx) {
   kdebug_log(DEBUG "cpuid: pre: op %x eax %x ebx %x ecx %x edx %x", op, *eax, *ebx, *ecx, *edx);
   __cpuid(op, *eax, *ebx, *ecx, *edx);
